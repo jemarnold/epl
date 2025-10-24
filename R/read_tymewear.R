@@ -1,7 +1,7 @@
 #' Read Tymewear Exported CSV Data
 #'
-#' Read from exported *"Live Processed CSV"* or *"Post Processed CSV"* files
-#' and return recorded data table and file metadata.
+#' Read *"Live Processed CSV"* or *"Post Processed CSV"* files exported from
+#' Tymewear VitalPro and return recorded data table and file metadata.
 #'
 #' @param file_path The file path as a character string, including *.csv*
 #' file type.
@@ -22,15 +22,12 @@ NULL
 read_tymelive <- function(file_path) {
     ## read csv ================================
     ## validation: check file exists
-    if (!file.exists(file_path)) {
-        cli_abort(c(
-            "{.arg file_path} = {.val {file_path}}",
-            "x" = "File not found. Check that file exists."
-        ))
-    }
+    validate_file_path(file_path)
 
     ## read csv avoiding formatting issues
-    data_raw <- read_csv_with_spaces(file_path)
+    data_raw <- read_csv_robust(file_path)
+
+    validate_data_frame(data_raw)
 
     ## detect header row with "ts"
     header_row <- detect_header_row(data_raw, "ts", 100)
@@ -63,19 +60,13 @@ read_tymelive <- function(file_path) {
         })() |>
         ## rename and select columns
         select(any_of(c(
-            timestamp = "ts", BR = "rbr", Vt = "rvt", VE = "rve"
+            timestamp = "ts", br = "rbr", vt = "rvt", ve = "rve"
         ))) |>
         ## force type to numeric
         mutate(across(everything(), \(.x) as.numeric(.x))) |>
         suppressWarnings() |>
         ## drops rows after/including the first row with all NA
-        (\(.df) {
-            first_allna <- which(rowSums(!is.na(.df)) == 0)[1]
-
-            if (!is.na(first_allna)) {
-                slice(.df, seq_len(first_allna - 1))
-            }
-        })() |>
+        drop_rows_after_first_na() |>
         mutate(
             ## convert timestamp to correct time zone and create time column
             timestamp = as_datetime(timestamp/1000, tz = "America/Vancouver"),
@@ -93,45 +84,4 @@ read_tymelive <- function(file_path) {
 }
 
 
-#' @importFrom stringr str_split_fixed
-#' @importFrom readr read_lines
-#' @keywords internal
-read_csv_with_spaces <- function(file_path) {
-    ## read csv as raw lines. Avoids issues with multiple empty rows & columns
-    read_lines(file_path) |>
-        str_split_fixed(",", n = Inf) |> ## don't print this it takes ages!
-        as_tibble(.name_repair = "unique_quiet")
-}
 
-# read_csv_with_spaces_base <- function(file_path) {
-#     lines <- readLines(file_path, warn = FALSE)
-#     splits <- strsplit(lines, ",", fixed = TRUE)
-#     max_cols <- max(lengths(splits))
-#     t(vapply(splits, `[`, character(max_cols), seq_len(max_cols))) |>
-#         as_tibble(.name_repair = "unique_quiet")
-# }
-
-
-
-
-#' @keywords internal
-detect_header_row <- function(data, label, max_row = 100) {
-    ## detect header row with "label"
-    header_match <- apply(
-        data[seq_len(min(max_row, nrow(data))), , drop = FALSE],
-        1, \(.row) any(.row == label, na.rm = TRUE)
-    )
-    header_row <- which(header_match)[1]
-
-    ## validation: "label" must be detected to extract the proper data frame
-    if (is.na(header_row) || length(header_row) != 1) {
-        cli_abort("Error detecting data frame. Check file structure.")
-        cli_abort(c(
-            "Error detecting {.val {label}}.",
-            "i" = "Strings are case sensitive and should match exactly. \\
-            Check file structure."
-        ))
-    }
-
-    return(header_row)
-}
