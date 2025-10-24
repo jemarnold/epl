@@ -21,7 +21,8 @@ validate_data_frame <- function(data) {
 
 
 
-
+#' @import rlang
+#' @keywords internal
 validate_numeric <- function(
         arg,
         elements = Inf,
@@ -55,7 +56,7 @@ validate_numeric <- function(
         integer_true <- TRUE
         arg_class <- "numeric"
     } else {
-        integer_true <- rlang::is_integerish(arg[valid_arg])
+        integer_true <- is_integerish(arg[valid_arg])
         arg_class <- "integer"
         arg_length <- ""
     }

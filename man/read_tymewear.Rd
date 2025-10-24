@@ -19,6 +19,6 @@ A list with two \link[tibble:tibble-package]{tibbles}.
 }
 }
 \description{
-Read from exported \emph{"Live Processed CSV"} or \emph{"Post Processed CSV"} files
-and return recorded data table and file metadata.
+Read \emph{"Live Processed CSV"} or \emph{"Post Processed CSV"} files exported from
+Tymewear VitalPro and return recorded data table and file metadata.
 }
