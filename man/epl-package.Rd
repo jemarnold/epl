@@ -6,7 +6,7 @@
 \alias{epl-package}
 \title{epl: Functions and Scripts for the UBC Environmental Physiology Laboratory}
 \description{
-A repository of functions and scripts for commonly tasks for use by students in the UBC Environmental Physiology Laboratory.
+A repository of functions and scripts for common tasks for use by students in the UBC Environmental Physiology Laboratory.
 }
 \author{
 \strong{Maintainer}: Jem Arnold \email{jem.arnold@ubc.ca}

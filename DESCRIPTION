@@ -3,20 +3,23 @@ Title: Functions and Scripts for the UBC Environmental Physiology Laboratory
 Version: 0.0.0.9000
 Authors@R: 
     person("Jem", "Arnold", , "jem.arnold@ubc.ca", role = c("aut", "cre"))
-Description: A repository of functions and scripts for commonly tasks for use 
+Description: A repository of functions and scripts for common tasks for use 
     by students in the UBC Environmental Physiology Laboratory.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Imports: 
-    brio,
     cli,
     dplyr,
     janitor,
     lubridate,
+    readr,
     stringr,
     tibble,
     tidyr
 Depends: 
     R (>= 4.1)
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

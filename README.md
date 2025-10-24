@@ -22,7 +22,7 @@ remotes::install_github("jemarnold/epl")
 
 ## Online App
 
-`<coming soon>`
+`<under development>`
 
 ## Usage
 
@@ -31,7 +31,7 @@ remotes::install_github("jemarnold/epl")
 ``` r
 library(epl)
 
-file_path <- file.path("Tymewear", "Raw Data", "my_file.csv")
+file_path <- file.path("project_folder", "data_folder", "my_file.csv")
 
 read_tymelive(file_path)
 #> $data
@@ -48,7 +48,7 @@ read_tymelive(file_path)
 #>  8 33.9  2025-10-23 10:50:44   119   588    70
 #>  9 39.3  2025-10-23 10:50:50    80   114     9
 #> 10 44.7  2025-10-23 10:50:55   100   221    22
-#> # ℹ 1,073 more rows
+#> # ℹ 1,073 more rows |> |> 
 #> 
 #> $details
 #> # A tibble: 60 × 2
@@ -66,3 +66,25 @@ read_tymelive(file_path)
 #> 10 sport         "2"     
 #> # ℹ 50 more rows
 ```
+
+### Read Parvo Data
+
+<!--  ```{r}            -->
+
+<!--  #| eval: false    -->
+
+<!--                    -->
+
+<!--  file_path <- file.path("project_folder", "data_folder", "my_file.csv")  -->
+
+<!--                    -->
+
+<!--  read_parvo(file_) -->
+
+<!--  ```               -->
+
+`<under development>`
+
+### Helper Functions
+
+`<under development>`
