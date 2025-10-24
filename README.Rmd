@@ -1,14 +1,26 @@
+---
+output: github_document
+---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%",
+    dpi = 300
+)
+```
 
 # `{epl}`
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
-`{epl}` is a repository of functions and scripts for common tasks for
-use by students in the UBC Environmental Physiology Laboratory.
+`{epl}` is a repository of functions and scripts for common tasks for use 
+by students in the UBC Environmental Physiology Laboratory.
 
 ## Installation
 
@@ -28,7 +40,9 @@ remotes::install_github("jemarnold/epl")
 
 ### Read Tymewear Data
 
-``` r
+```{r}
+#| eval: false
+
 library(epl)
 
 file_path <- file.path("Tymewear", "Raw Data", "my_file.csv")
@@ -65,4 +79,5 @@ read_tymelive(file_path)
 #>  9 activity-type "0"     
 #> 10 sport         "2"     
 #> # ℹ 50 more rows
+
 ```
