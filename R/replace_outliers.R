@@ -1,0 +1,190 @@
+#' Replace Local Outliers
+#'
+#' Detects local outliers in vector data with a Hampel filter using median
+#' absolute deviation (MAD), and replaces with `NA` or the local median value.
+#'
+#' @param x A numeric vector.
+#' @param method A character string indicating how to handle replacement
+#'   (see *Details* for more on each method):
+#'   \describe{
+#'      \item{`"median"`}{Replaces outliers with the median within a locally
+#'      centred window defined by either `width` (the *default*).}
+#'      \item{`"NA"`}{Replaces outliers with `NA`.}
+#'   }
+#' @param width An integer defining the sample window in which to detect local
+#'   outliers. Where `window = -width < idx < width`.
+#' @param t0 An integer for the local outlier threshold. *Default* `t0 = 3`
+#'   (Pearson's rule).
+#'
+#' @details
+#' The default `method = "median"` will replace outliers with the local median
+#'   value, as in [pracma::hampel()]. Otherwise, `method = "NA"` will
+#'   replace outliers with `NA`.
+#'
+#' This function can be run on numeric vectors with missing `NA` values. `NA`
+#'   values in `x` are excluded from processing and restored in the returned
+#'   vector.
+#'
+#' A high `t0` threshold makes the outlier filter more forgiving, a low one
+#'   will declare more points to be outliers. `t0 = 3` (the *default*)
+#'   corresponds to Pearson's 3 sigma edit rule, `t0 = 0` to Tukey's median
+#'   filter.
+#'
+#' @return A numeric vector of filtered data.
+#'
+#' @seealso [pracma::hampel()]
+#'
+#' @examples
+#' set.seed(8421)
+#' x <- numeric(1024)
+#' z <- rnorm(1024)
+#' x[1] <- z[1]
+#' for (i in 2:1024) {
+#'     x[i] <- 0.4*x[i-1] + 0.8*x[i-1]*z[i-1] + z[i]
+#' }
+#' x[150:200] <- NA ## generate NA values
+#' y <- replace_outliers(x, width = 20, method = "median")
+#' ind <- which(x != y) ## identify outlier indices
+#' outliers <- x[ind] ## identify outlier values
+#'
+#' \dontrun{
+#' plot(1:1024, x, type = "l")
+#' points(ind, outliers, pch = 21, col = "darkred")
+#' lines(y, col = "blue")
+#' }
+#'
+#' @export
+replace_outliers <- function(
+        x,
+        method = c("median", "NA"),
+        width,
+        t0 = 3
+) {
+    method <- match.arg(method)
+    method <- method == "median" ## into logical
+
+    validate_numeric(x)
+    validate_numeric(
+        width, 1, c(1, Inf), TRUE, TRUE, msg = "one-element positive"
+    )
+    if (width >= ceiling(length(x)/2)) {
+        cli::cli_abort(
+            "{.arg width} must not be greater than half the length of {.arg x}."
+        )
+    }
+    validate_numeric(t0, 1, c(0, Inf), TRUE, TRUE, msg = "one-element positive")
+
+    ## logical whether to handle NAs
+    handle_na <- any(is.na(x))
+
+    if (handle_na) {
+        na_info <- preserve_na(x)
+        x <- na_info$x_valid
+    }
+
+    n <- length(x)
+    y <- x
+    L <- 1.4826 ## 1 / qnorm(0.75): MAD at the 75% percentile of |Z|
+
+    ## vectorised window bounds
+    start_idx <- pmax(1, seq_len(n) - width)
+    end_idx <- pmin(n, seq_len(n) + width)
+
+    ## vectorised median & MAD
+    x0 <- vapply(seq_len(n), \(i) {
+        median(x[start_idx[i]:end_idx[i]])
+    }, numeric(1))
+
+    S0 <- L * vapply(seq_len(n), \(i) {
+        median(abs(x[start_idx[i]:end_idx[i]] - x0[i]))
+    }, numeric(1))
+
+    ## logical outlier positions
+    is_outlier <- abs(x - x0) > t0 * S0
+    ## fill outliers with median or NA
+    if (method) {
+        y[is_outlier] <- x0[is_outlier]
+    } else {
+        y[is_outlier] <- NA_real_
+    }
+    ## return y to original x length with NAs if handled
+    if (handle_na) {
+        result <- restore_na(y, na_info)
+    } else {
+        result <- y
+    }
+
+    return(result)
+}
+
+
+
+
+
+#' Preserve and Restore NA Information Within a Vector
+#'
+#' `preserve_na()` stores `NA` vector positions and extracts valid non-`NA`
+#' values for later restoration with `restore_na()`.
+#'
+#' @param x A vector containing missing `NA` values.
+#'
+#' @return
+#' `preserve_na()` returns a list `na_info` with components:
+#'  - `na_info$x_valid`: A vector with `NA` values removed.
+#'  - `na_info$x_length`: A numeric value of the original input vector length.
+#'  - `na_info$na_idx`: A logical vector preserving `NA` positions.
+#'
+#' `restore_na()` returns a vector `y` of the same length as the original
+#'   input vector `x` with `NA` values restored to their original positions.
+#'
+#' @examples
+#' x <- c(1, NA, 3, NA, 5)
+#' na_info <- preserve_na(x)
+#' ## process with a function that would normally fail on NA
+#' y <- na_info$x_valid * 2
+#' result <- restore_na(y, na_info)
+#' result
+#'
+#' x <- c("A", NA, "B", NA, "C")
+#' na_info <- preserve_na(x)
+#' ## process with a function that would normally fail on NA
+#' y <- tolower(na_info$x_valid)
+#' result <- restore_na(y, na_info)
+#' result
+#'
+#' @keywords internal
+preserve_na <- function(x) {
+    na_info <- list(
+        x_valid = x[!is.na(x)],
+        x_length = length(x),
+        na_idx = is.na(x)
+    )
+    return(na_info)
+}
+
+
+
+
+#' Preserve and Restore NA Information Within a Vector
+#'
+#' `restore_na()` restores `NA` values to their original vector positions
+#' after processing valid non-`NA` values returned from `preserve_na()`.
+#'
+#' @param y A vector of valid non-`NA` values returned from `preserve_na()`.
+#' @param na_info A list returned from `preserve_na()`.
+#'
+#' @rdname preserve_na
+#' @keywords internal
+restore_na <- function(y, na_info) {
+    if (all(!na_info$na_idx)) {
+        return(y)
+    }
+    ## fill original length of NAs
+    result <- rep(NA, na_info$x_length)
+    if (all(na_info$na_idx)) {
+        return(result)
+    }
+    ## replace non-NA with processed output values
+    result[!na_info$na_idx] <- y
+    return(result)
+}
