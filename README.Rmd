@@ -73,14 +73,13 @@ This function will read *.CSV* or *.xlsx* (but not *.XLS*) files exported by *Pa
 `parvo$events` contains any manually entered events with `"TIME"` in seconds and event descriptions.
 
 ```{r}
-
 file_path <- example_epl("parvo_binned")
 
 parvo <- read_parvo(file_path)
 parvo
 ```
 
-`read_parvo()` has an argument to add timestamps in `datetime` format to `parvo$data`, taken from `parvo$details` file start time. This is recorded from system time to the nearest whole second (i.e. precise to ± 0.05 sec, assuming system time is accurate).
+`read_parvo()` has an argument to add timestamps in `datetime` format to `parvo$data`, taken from `parvo$details` file start time. This is recorded from system time to the nearest whole second (i.e. precise to ± 0.5 sec, assuming system time is accurate).
 
 ```{r}
 ## timestamps can be added
@@ -96,16 +95,28 @@ read_parvo(file_path, add_timestamp = TRUE)$data
 This function can be used to retrieve example files included in {epl} to test processing functions.
 
 ```{r}
+#| error: TRUE 
 ## calling `example_epl()` will return a list of all included example files
 example_epl()
+
+## partial matching will error if matches multiple
+example_epl("tymewear")
 
 ## calling a specific file by name will return the file path to that file
 ## partial string matching works for uniquely identifiable file names
 example_epl("tymewear_live")
-
-## partial matching will error if matches multiple
-#> example_epl("tymewear")
-#> Error in `example_epl()`:
-#> ! Multiple files match "tymewear":
-#> ℹ Matching files: "tymewear_live.csv" and "tymewear_post.csv"
 ```
+
+## To do
+
+-   Update `read_tymewear()` method for *"tymepost*" export file type.
+
+-   Add local outlier filtering for metabolic data.
+
+-   Add mean peak value detection, i.e. for V̇O~2~peak.
+
+-   Add digital filtering methods (e.g. Butterworth, smoothing spline, simple moving average).
+
+-   Add template display theme for `ggplot2` plotting.
+
+-   Add 4-parameter monoexponential curve fitting via `nls()` self-starting functions.

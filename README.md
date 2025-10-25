@@ -105,7 +105,6 @@ for details on calculated values).
 seconds and event descriptions.
 
 ``` r
-
 file_path <- example_epl("parvo_binned")
 
 parvo <- read_parvo(file_path)
@@ -158,7 +157,7 @@ parvo
 `read_parvo()` has an argument to add timestamps in `datetime` format to
 `parvo$data`, taken from `parvo$details` file start time. This is
 recorded from system time to the nearest whole second (i.e. precise to ±
-0.05 sec, assuming system time is accurate).
+0.5 sec, assuming system time is accurate).
 
 ``` r
 ## timestamps can be added
@@ -198,14 +197,30 @@ example_epl()
 #> [1] "parvo_binned.CSV"  "parvo_bxb.CSV"     "tymewear_live.csv"
 #> [4] "tymewear_post.csv"
 
-## calling a specific file by name will return the file path to that file
-## partial string matching works for uniquely identifiable file names
-example_epl("tymewear_live")
-#> [1] "C:/Users/Jem/AppData/Local/Temp/RtmpiezByi/temp_libpath524c3f393f9c/epl/extdata/tymewear_live.csv"
-
 ## partial matching will error if matches multiple
-#> example_epl("tymewear")
+example_epl("tymewear")
 #> Error in `example_epl()`:
 #> ! Multiple files match "tymewear":
 #> ℹ Matching files: "tymewear_live.csv" and "tymewear_post.csv"
+
+## calling a specific file by name will return the file path to that file
+## partial string matching works for uniquely identifiable file names
+example_epl("tymewear_live")
+#> [1] "C:/Users/Jem/AppData/Local/Temp/Rtmpy8S1BW/temp_libpath2498217936ab/epl/extdata/tymewear_live.csv"
 ```
+
+## To do
+
+- Update `read_tymewear()` method for *“tymepost*” export file type.
+
+- Add local outlier filtering for metabolic data.
+
+- Add mean peak value detection, i.e. for V̇O<sub>2</sub>peak.
+
+- Add digital filtering methods (e.g. Butterworth, smoothing spline,
+  simple moving average).
+
+- Add template display theme for `ggplot2` plotting.
+
+- Add 4-parameter monoexponential curve fitting via `nls()`
+  self-starting functions.
