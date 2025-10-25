@@ -14,87 +14,98 @@ knitr::opts_chunk$set(
 )
 ```
 
-# `{epl}`
+# `{epl}` package
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
-`{epl}` is a repository of functions and scripts for common tasks for use 
-by students in the UBC Environmental Physiology Laboratory.
+`{epl}` is a repository of functions and scripts for common tasks for use by students in the UBC Environmental Physiology Laboratory.
+
+## Online App
+
+`<under development>`
 
 ## Installation
 
-You can install the development version of `{epl}` from
-[GitHub](https://github.com/jemarnold/epl) with:
+You can install the development version of `{epl}` from [GitHub](https://github.com/jemarnold/epl) with:
 
 ``` r
 # install.packages("remotes")
 remotes::install_github("jemarnold/epl")
 ```
 
-## Online App
-
-`<under development>`
-
 ## Usage
 
-### Read Tymewear Data
+### `read_tymewear()`
+
+This function will read *"Live Processed CSV"* or *"Post Processed CSV"* files exported from *Tymewear VitalPro* and return a list of two data frames with recorded data and file details.
+
+`tyme$data` contains the recorded raw data samples for breathing rate, tidal volume, and ventilation: `c("br", "vt", "ve")`, with time in seconds and timestamps in `datetime` format.
+
+`tyme$details` contains the file details & metadata, including `c("gender", "weight", "date", "app-start-time")`.
 
 ```{r}
-#| eval: false
-
+## load {epl} package
 library(epl)
 
-file_path <- file.path("project_folder", "data_folder", "my_file.csv")
+## specify the file path via any number of methods
+## this gives an example format
+file_path <- file.path("root_project_folder", "data_folder", "my_file.csv")
+file_path
 
-read_tymelive(file_path)
-#> $data
-#> # A tibble: 1,083 × 5
-#>     time timestamp              br    vt    ve
-#>    <dbl> <dttm>              <dbl> <dbl> <dbl>
-#>  1  0    2025-10-23 10:50:11   127   135    17
-#>  2  4.14 2025-10-23 10:50:15   149   135    20
-#>  3  7.95 2025-10-23 10:50:18   150   105    16
-#>  4 13.0  2025-10-23 10:50:24   138   240    33
-#>  5 17.2  2025-10-23 10:50:28   133   111    15
-#>  6 21.2  2025-10-23 10:50:32   128   163    21
-#>  7 25.7  2025-10-23 10:50:36   130   361    47
-#>  8 33.9  2025-10-23 10:50:44   119   588    70
-#>  9 39.3  2025-10-23 10:50:50    80   114     9
-#> 10 44.7  2025-10-23 10:50:55   100   221    22
-#> # ℹ 1,073 more rows |> |> 
-#> 
-#> $details
-#> # A tibble: 60 × 2
-#>    ...1          ...2    
-#>    <chr>         <chr>   
-#>  1 Info Section  ""      
-#>  2 type          "0"     
-#>  3 stages        "[]"    
-#>  4 gender        "Male"
-#>  5 weight        "85.0"  
-#>  6 weight_units  "SI"    
-#>  7 activity-name "id03"  
-#>  8 f_v           "1.0"   
-#>  9 activity-type "0"     
-#> 10 sport         "2"     
-#> # ℹ 50 more rows
+## example files are available by calling `example_epl()`
+file_path <- example_epl("tymewear_live")
+
+tymelive <- read_tymewear(file_path)
+tymelive
 
 ```
 
-### Read Parvo Data
+### `read_parvo()`
 
-<!--  ```{r}            -->
-<!--  #| eval: false    -->
-<!--                    -->
-<!--  file_path <- file.path("project_folder", "data_folder", "my_file.csv")  -->
-<!--                    -->
-<!--  read_parvo(file_) -->
-<!--  ```               -->
+This function will read *.CSV* or *.xlsx* (but not *.XLS*) files exported by *Parvo Medics TrueOne 2400* and return a list of three data frames with recorded data, file details, and events.
 
-`<under development>`
+`parvo$data` contains the recorded raw data samples for exported data channels (e.g. `c("VO2", "VCO2", "RR", "Vt")`) and calculated metabolic values (e.g. `c("O2kJ", "O2kcal", "Paer", "METS")`; see `?read_parvo` for details on calculated values).
+
+`parvo$details` contains the file details & metadata, including `c("Date", "Name", "Sex", "Age")` (all metric values).
+
+`parvo$events` contains any manually entered events with `"TIME"` in seconds and event descriptions.
+
+```{r}
+
+file_path <- example_epl("parvo_binned")
+
+parvo <- read_parvo(file_path)
+parvo
+```
+
+`read_parvo()` has an argument to add timestamps in `datetime` format to `parvo$data`, taken from `parvo$details` file start time. This is recorded from system time to the nearest whole second (i.e. precise to ± 0.05 sec, assuming system time is accurate).
+
+```{r}
+## timestamps can be added
+read_parvo(file_path, add_timestamp = TRUE)$data
+```
 
 ### Helper Functions
 
 `<under development>`
 
+#### `example_epl()`
+
+This function can be used to retrieve example files included in {epl} to test processing functions.
+
+```{r}
+## calling `example_epl()` will return a list of all included example files
+example_epl()
+
+## calling a specific file by name will return the file path to that file
+## partial string matching works for uniquely identifiable file names
+example_epl("tymewear_live")
+
+## partial matching will error if matches multiple
+#> example_epl("tymewear")
+#> Error in `example_epl()`:
+#> ! Multiple files match "tymewear":
+#> ℹ Matching files: "tymewear_live.csv" and "tymewear_post.csv"
+```
