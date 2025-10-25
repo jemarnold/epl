@@ -5,14 +5,14 @@
 #' and file details
 #'
 #' @param file_path The file path as a character string, including *.csv*
-#' file type.
+#'   file type.
 #' @param ... Additional arguments passed to `read_tymewear`.
 #'
 #' @details
 #' This generic function detects *Tymewear* exported file type by searching the
-#' top of the file for recognisable column data belonging to either
-#' *"tymewear.live"* or *"tymewear.post"*, and will read and import the
-#' resulting file.
+#'   top of the file for recognisable column data belonging to either
+#'   *"tymewear.live"* or *"tymewear.post"*, and will read and import the
+#'   resulting file.
 #'
 #' @return A list with two [tibbles][tibble::tibble-package].
 #' - `tymelive$data` contains the data table.

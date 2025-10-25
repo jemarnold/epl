@@ -5,44 +5,45 @@
 #' file details, and events.
 #'
 #' @param file_path The file path as a character string, including *.csv* or
-#' *.xlsx* file type.
+#'   *.xlsx* file type.
 #' @param time_column A character string for the time column in the data table.
-#' *Defaults* to `time_column = "TIME"`. Used to detect the location of the data
-#' table.
+#'   *Defaults* to `time_column = "TIME"`. Used to detect the location of the
+#'   data table.
 #' @param add_timestamp A logical to add a "timestamp" column to the data table
-#' with date-time values, useful for synchronisation with other recordings by
-#' time of day. Precise to ± 0.5 seconds.
+#'   with date-time values, useful for synchronisation with other recordings by
+#'   time of day. Precise to ± 0.5 seconds.
 #'
 #' @details
 #' This function can only parse *.CSV* files exported directly from a Parvo
-#' metabolic cart. *.XLS* exported from Parvo are obsolete and the file format
-#' cannot be read. They must be re-saved as *.xlsx* before reading with this
-#' function.
+#'   metabolic cart. *.XLS* exported from Parvo are obsolete and the file
+#'   format cannot be read. They must be re-saved as *.xlsx* before reading
+#'   with this function.
 #'
 #' Data from all exported channels (e.g. `c("VO2", "VCO2", "Vt")`) will be
-#' exported as-is.
+#'   exported as-is.
 #'
 #' Additional data columns will be calculated if the required exported data
-#' are present. All energetic calculations are derived from
-#' *Peronnet & Massicotte, 1991. Table of nonprotein respiratory quotient: an update*.
+#'   are present. All energetic calculations are derived from
+#'   *Peronnet & Massicotte, 1991. Table of nonprotein respiratory quotient: an update*.
 #'
 #' These include:
-#' - `FatOx` and `CarbOx` are respective substrate oxidation rates in g/min.
-#' - `O2kJ` and `O2kcal` are energy equivalents of oxygen in kJ/L and kcal/L
-#' (kilojoules and kilocalories per litre `VO2`), respectively.
-#' - `O2work`, `O2power`, and `O2energy` are aerobic metabolic work expenditure,
-#' energy expenditure, and power output in kJ/min, kcal/min, and W (kilojoules
-#' per minute, kilocalories per minute, and joules per second), respectively.
-#' - `O2pulse` is a ratio of `VO2` to heart rate (`HR`) in ml/min/bpm
-#' (millilitres of `VO2` per heart beat).
-#' - `Economy` is a ratio of the oxygen cost of work, in W/L/min (external
-#' power output in watts per litre per minute of `VO2`)
-#' - `GE` (gross efficiency) is a ratio of external work to internal metabolic
-#' work, as a percent, accounting for `VO2` and substrate oxidation (`RER`).
-#' - `METS` (metabolic equivalent of task) is a deprecated method of estimating
-#' the oxygen cost of common physically active tasks adjusted for body mass,
-#' relative to resting metabolic rate (approximately 3.5 mL/kg/min), in
-#' arbitrary units, calculated as `VO2kg / 3.5`.
+#'   - `FatOx` and `CarbOx` are respective substrate oxidation rates in g/min.
+#'   - `O2kJ` and `O2kcal` are energy equivalents of oxygen in kJ/L and kcal/L
+#'      (kilojoules and kilocalories per litre `VO2`), respectively.
+#'   - `O2work`, `O2power`, and `O2energy` are aerobic metabolic work
+#'      expenditure, energy expenditure, and power output in kJ/min, kcal/min,
+#'      and W (kilojoules per minute, kilocalories per minute, and joules per
+#'      second), respectively.
+#'   - `O2pulse` is a ratio of `VO2` to heart rate (`HR`) in ml/min/bpm
+#'      (millilitres of `VO2` per heart beat).
+#'   - `Economy` is a ratio of the oxygen cost of work, in W/L/min (external
+#'      power output in watts per litre per minute of `VO2`)
+#'   - `GE` (gross efficiency) is a ratio of external work to internal metabolic
+#'      work, as a percent, accounting for `VO2` and substrate oxidation (`RER`).
+#'   - `METS` (metabolic equivalent of task) is a deprecated method of
+#'      estimating the oxygen cost of common physically active tasks adjusted
+#'      for body mass, relative to resting metabolic rate (approximately 3.5
+#'      mL/kg/min), calculated as `VO2kg / 3.5`.
 #'
 #' @return A list with three [tibbles][tibble::tibble-package].
 #' - `parvo$data` contains the data table.

@@ -83,6 +83,7 @@ read_csv_robust <- function(file_path, n = Inf) {
         tibble::as_tibble(.name_repair = "unique_quiet")
 }
 
+## base R version
 # read_csv_robust_base <- function(file_path) {
 #     lines <- readLines(file_path, warn = FALSE)
 #     splits <- strsplit(lines, ",", fixed = TRUE)
@@ -141,14 +142,14 @@ drop_rows_after_first_na <- function(data) {
 #'
 #' @param x A numeric vector.
 #' @param left,right Numeric boundary values. Both `left` and `right` are
-#'  recycled to the size of `x`.
+#'   recycled to the size of `x`.
 #' @param inclusive A logical to specify that `left` and `right` boundary
-#'  values should be accepted in the range (the *default*) or excluded if
-#'  `FALSE`.
+#'   values should be accepted in the range (the *default*) or excluded if
+#'   `FALSE`.
 #'
 #' @details
 #' `inclusive = FALSE` could be used to test for positive non-zero values:
-#' `between(x, 0, Inf, inclusive = FALSE)`.
+#'   `between(x, 0, Inf, inclusive = FALSE)`.
 #'
 #' @return A logical vector the same length as `x`.
 #'
@@ -170,7 +171,7 @@ between <- function(x, left, right, inclusive = TRUE) {
 #' Get path to `{epl}` example files
 #'
 #' @param file Name of file as character string. If kept as `NULL`, returns a
-#' vector of all available files.
+#'   vector of all available files.
 #'
 #' @return
 #' File paths for selected example files stored in this package.

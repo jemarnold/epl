@@ -11,8 +11,8 @@ read_parvo(file_path, time_column = "TIME", add_timestamp = FALSE)
 \emph{.xlsx} file type.}
 
 \item{time_column}{A character string for the time column in the data table.
-\emph{Defaults} to \code{time_column = "TIME"}. Used to detect the location of the data
-table.}
+\emph{Defaults} to \code{time_column = "TIME"}. Used to detect the location of the
+data table.}
 
 \item{add_timestamp}{A logical to add a "timestamp" column to the data table
 with date-time values, useful for synchronisation with other recordings by
@@ -33,9 +33,9 @@ file details, and events.
 }
 \details{
 This function can only parse \emph{.CSV} files exported directly from a Parvo
-metabolic cart. \emph{.XLS} exported from Parvo are obsolete and the file format
-cannot be read. They must be re-saved as \emph{.xlsx} before reading with this
-function.
+metabolic cart. \emph{.XLS} exported from Parvo are obsolete and the file
+format cannot be read. They must be re-saved as \emph{.xlsx} before reading
+with this function.
 
 Data from all exported channels (e.g. \code{c("VO2", "VCO2", "Vt")}) will be
 exported as-is.
@@ -49,19 +49,20 @@ These include:
 \item \code{FatOx} and \code{CarbOx} are respective substrate oxidation rates in g/min.
 \item \code{O2kJ} and \code{O2kcal} are energy equivalents of oxygen in kJ/L and kcal/L
 (kilojoules and kilocalories per litre \code{VO2}), respectively.
-\item \code{O2work}, \code{O2power}, and \code{O2energy} are aerobic metabolic work expenditure,
-energy expenditure, and power output in kJ/min, kcal/min, and W (kilojoules
-per minute, kilocalories per minute, and joules per second), respectively.
+\item \code{O2work}, \code{O2power}, and \code{O2energy} are aerobic metabolic work
+expenditure, energy expenditure, and power output in kJ/min, kcal/min,
+and W (kilojoules per minute, kilocalories per minute, and joules per
+second), respectively.
 \item \code{O2pulse} is a ratio of \code{VO2} to heart rate (\code{HR}) in ml/min/bpm
 (millilitres of \code{VO2} per heart beat).
 \item \code{Economy} is a ratio of the oxygen cost of work, in W/L/min (external
 power output in watts per litre per minute of \code{VO2})
 \item \code{GE} (gross efficiency) is a ratio of external work to internal metabolic
 work, as a percent, accounting for \code{VO2} and substrate oxidation (\code{RER}).
-\item \code{METS} (metabolic equivalent of task) is a deprecated method of estimating
-the oxygen cost of common physically active tasks adjusted for body mass,
-relative to resting metabolic rate (approximately 3.5 mL/kg/min), in
-arbitrary units, calculated as \code{VO2kg / 3.5}.
+\item \code{METS} (metabolic equivalent of task) is a deprecated method of
+estimating the oxygen cost of common physically active tasks adjusted
+for body mass, relative to resting metabolic rate (approximately 3.5
+mL/kg/min), calculated as \code{VO2kg / 3.5}.
 }
 }
 \examples{
