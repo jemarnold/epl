@@ -1,7 +1,8 @@
 #' Read Parvo Exported CSV Data
 #'
-#' Read *.CSV* or *.xlsx* (but not *.XLS*) files exported by Parvo Medics
-#' TrueOne 2400 and return recorded data table and file metadata.
+#' Read *.CSV* or *.xlsx* (but not *.XLS*) files exported by *Parvo Medics
+#' TrueOne 2400* and return a list of three data frames with recorded data,
+#' file details, and events.
 #'
 #' @param file_path The file path as a character string, including *.csv* or
 #' *.xlsx* file type.
@@ -14,14 +15,45 @@
 #'
 #' @details
 #' This function can only parse *.CSV* files exported directly from a Parvo
-#' metabolic cart. Obsolete *.XLS* exported file format cannot be read and
-#' must be re-saved as *.xlsx* before reading with this function.
+#' metabolic cart. *.XLS* exported from Parvo are obsolete and the file format
+#' cannot be read. They must be re-saved as *.xlsx* before reading with this
+#' function.
+#'
+#' Data from all exported channels (e.g. `c("VO2", "VCO2", "Vt")`) will be
+#' exported as-is.
+#'
+#' Additional data columns will be calculated if the required exported data
+#' are present. All energetic calculations are derived from
+#' *Peronnet & Massicotte, 1991. Table of nonprotein respiratory quotient: an update*.
+#'
+#' These include:
+#' - `FatOx` and `CarbOx` are respective substrate oxidation rates in g/min.
+#' - `O2kJ` and `O2kcal` are energy equivalents of oxygen in kJ/L and kcal/L
+#' (kilojoules and kilocalories per litre `VO2`), respectively.
+#' - `O2work`, `O2power`, and `O2energy` are aerobic metabolic work expenditure,
+#' energy expenditure, and power output in kJ/min, kcal/min, and W (kilojoules
+#' per minute, kilocalories per minute, and joules per second), respectively.
+#' - `O2pulse` is a ratio of `VO2` to heart rate (`HR`) in ml/min/bpm
+#' (millilitres of `VO2` per heart beat).
+#' - `Economy` is a ratio of the oxygen cost of work, in W/L/min (external
+#' power output in watts per litre per minute of `VO2`)
+#' - `GE` (gross efficiency) is a ratio of external work to internal metabolic
+#' work, as a percent, accounting for `VO2` and substrate oxidation (`RER`).
+#' - `METS` (metabolic equivalent of task) is a deprecated method of estimating
+#' the oxygen cost of common physically active tasks adjusted for body mass,
+#' relative to resting metabolic rate (approximately 3.5 mL/kg/min), in
+#' arbitrary units, calculated as `VO2kg / 3.5`.
 #'
 #' @return A list with three [tibbles][tibble::tibble-package].
 #' - `parvo$data` contains the data table.
 #' - `parvo$details` contains the file metadata.
 #' - `parvo$events` contains manual event inputs.
 #'
+#' @examples
+#' # retrieve example parvo file
+#' file_path <- example_epl("parvo_binned")
+#' parvo <- read_parvo(file_path, add_timestamp = TRUE)
+#' parvo
 #'
 #' @export
 read_parvo <- function(
@@ -206,7 +238,7 @@ read_parvo <- function(
             ## convert `TIME` in "mm:ss" or "min" to seconds
             dplyr::across(dplyr::all_of(time_column), \(.x) {
                 if (is.character(.x)) {
-                    as.numeric(ms(.x))
+                    as.numeric(lubridate::ms(.x))
                 } else {
                     .x * 60
                 }
@@ -223,15 +255,6 @@ read_parvo <- function(
                     VCO2_test = max(VCO2, na.rm = TRUE) > 1000,
                     VO2_L = dplyr::if_else(VO2_test, VO2 / 1000, VO2),
                     VCO2_L = dplyr::if_else(VCO2_test, VCO2 / 1000, VCO2),
-
-                    ## overwrite non-physiological values to NA when VO2 < 100
-                    ## TODO may need to adjust non-physiological criteria
-                    ## TODO what other columns to exclude?
-                    dplyr::across(
-                        -dplyr::any_of(c(time_column, "HR", "WorkR")), \(.x) {
-                            dplyr::if_else(VO2_L < 0.100, NA_real_, .x)
-                        }),
-
                     ## Peronnet & Massicotte 1991 substrate oxidation in g/min
                     FatOx = 1.695 * VO2_L - 1.701 * VCO2_L, ## g/min
                     CarbOx = 4.585 * VCO2_L - 3.226 * VO2_L, ## g/min
@@ -241,11 +264,11 @@ read_parvo <- function(
                     O2kJ = 16.8835 + 4.8353 * pmin(pmax(VCO2_L / VO2_L, 0.7036), 0.9961), ## kJ/L
                     O2kcal = 4.0372 + 1.1563 * pmin(pmax(VCO2_L / VO2_L, 0.7036), 0.9961), ## kcal/L
                     ## VO2 in L/min, O2kJ in kJ/L = aerobic work expenditure in kJ/min
-                    WEaer = VO2_L * O2kJ, ## kJ/min
-                    ## aerobic power input in J/sec = Watts
-                    Paer = VO2_L * O2kJ * 1000 / 60, ## W
+                    O2work = VO2_L * O2kJ, ## kJ/min
                     ## VO2 in L/min, O2kcal in kcal/L = aerobic energy expenditure in kcal/min
-                    EEaer = VO2_L * O2kcal, ## kcal/min
+                    O2energy = VO2_L * O2kcal, ## kcal/min
+                    ## aerobic power input in J/sec = Watts
+                    O2power = VO2_L * O2kJ * 1000 / 60, ## W
                     ## O2 pulse ml/bpm
                     O2pulse = if ("HR" %in% parvo_names) {VO2_L * 1000 / HR},
                     ## EC W/L/min

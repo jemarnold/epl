@@ -27,11 +27,47 @@ A list with three \link[tibble:tibble-package]{tibbles}.
 }
 }
 \description{
-Read \emph{.CSV} or \emph{.xlsx} (but not \emph{.XLS}) files exported by Parvo Medics
-TrueOne 2400 and return recorded data table and file metadata.
+Read \emph{.CSV} or \emph{.xlsx} (but not \emph{.XLS}) files exported by \emph{Parvo Medics
+TrueOne 2400} and return a list of three data frames with recorded data,
+file details, and events.
 }
 \details{
 This function can only parse \emph{.CSV} files exported directly from a Parvo
-metabolic cart. Obsolete \emph{.XLS} exported file format cannot be read and
-must be re-saved as \emph{.xlsx} before reading with this function.
+metabolic cart. \emph{.XLS} exported from Parvo are obsolete and the file format
+cannot be read. They must be re-saved as \emph{.xlsx} before reading with this
+function.
+
+Data from all exported channels (e.g. \code{c("VO2", "VCO2", "Vt")}) will be
+exported as-is.
+
+Additional data columns will be calculated if the required exported data
+are present. All energetic calculations are derived from
+\emph{Peronnet & Massicotte, 1991. Table of nonprotein respiratory quotient: an update}.
+
+These include:
+\itemize{
+\item \code{FatOx} and \code{CarbOx} are respective substrate oxidation rates in g/min.
+\item \code{O2kJ} and \code{O2kcal} are energy equivalents of oxygen in kJ/L and kcal/L
+(kilojoules and kilocalories per litre \code{VO2}), respectively.
+\item \code{O2work}, \code{O2power}, and \code{O2energy} are aerobic metabolic work expenditure,
+energy expenditure, and power output in kJ/min, kcal/min, and W (kilojoules
+per minute, kilocalories per minute, and joules per second), respectively.
+\item \code{O2pulse} is a ratio of \code{VO2} to heart rate (\code{HR}) in ml/min/bpm
+(millilitres of \code{VO2} per heart beat).
+\item \code{Economy} is a ratio of the oxygen cost of work, in W/L/min (external
+power output in watts per litre per minute of \code{VO2})
+\item \code{GE} (gross efficiency) is a ratio of external work to internal metabolic
+work, as a percent, accounting for \code{VO2} and substrate oxidation (\code{RER}).
+\item \code{METS} (metabolic equivalent of task) is a deprecated method of estimating
+the oxygen cost of common physically active tasks adjusted for body mass,
+relative to resting metabolic rate (approximately 3.5 mL/kg/min), in
+arbitrary units, calculated as \code{VO2kg / 3.5}.
+}
+}
+\examples{
+# retrieve example parvo file
+file_path <- example_epl("parvo_binned")
+parvo <- read_parvo(file_path, add_timestamp = TRUE)
+parvo
+
 }
