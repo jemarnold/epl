@@ -21,7 +21,6 @@ validate_data_frame <- function(data) {
 
 
 
-#' @import rlang
 #' @keywords internal
 validate_numeric <- function(
         arg,

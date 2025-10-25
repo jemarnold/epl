@@ -10,7 +10,6 @@
 #' - `tymelive$data` contains the data table.
 #' - `tymelive$details` contains the file metadata.
 #'
-#' @import tibble dplyr tidyr
 #'
 #' @name read_tymewear
 NULL
@@ -19,6 +18,7 @@ NULL
 #' @rdname read_tymewear
 #' @order 1
 #' @export
+## file_path <- example_epl("tymewear_live")
 read_tymelive <- function(file_path) {
     ## read csv ================================
     ## validation: check file exists
@@ -69,10 +69,15 @@ read_tymelive <- function(file_path) {
         drop_rows_after_first_na() |>
         mutate(
             ## convert timestamp to correct time zone and create time column
-            timestamp = as_datetime(timestamp/1000, tz = "America/Vancouver"),
+            timestamp = as_datetime(timestamp / 1000, tz = "America/Vancouver"),
             time = as.numeric(timestamp - timestamp[1]),
+            ## convert blank values to NA
+            across(
+                where(is.numeric),
+                \(.x) if_else(!is.finite(.x), NA_real_, .x)
+            ),
             ## round to avoid floating point
-            across(where(is.numeric), \(.x) round(.x, 5)),
+            across(where(is.numeric), \(.x) round(.x, 8)),
         ) |>
         relocate(time, timestamp)
 

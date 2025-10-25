@@ -42,7 +42,7 @@ test_that("read_tymelive() rounds numeric values correctly", {
 
     for (col in numeric_cols) {
         decimals <- nchar(sub(".*\\.", "", as.character(result$data[[col]])))
-        expect_true(all(decimals <= 5, na.rm = TRUE))
+        expect_true(all(decimals <= 8, na.rm = TRUE))
     }
 })
 
