@@ -2,7 +2,7 @@
 validate_file_path <- function(file_path) {
     ## validation: check file exists
     if (!file.exists(file_path)) {
-        cli_abort(c(
+        cli::cli_abort(c(
             "{.arg file_path} = {.val {file_path}}",
             "x" = "File not found. Check that file exists."
         ))
@@ -15,7 +15,7 @@ validate_file_path <- function(file_path) {
 #' @keywords internal
 validate_data_frame <- function(data) {
     if (!is.data.frame(data)) {
-        cli_abort("{.arg data} should be a data frame.")
+        cli::cli_abort("{.arg data} should be a data frame.")
     }
 }
 
@@ -55,7 +55,7 @@ validate_numeric <- function(
         integer_true <- TRUE
         arg_class <- "numeric"
     } else {
-        integer_true <- is_integerish(arg[valid_arg])
+        integer_true <- rlang::is_integerish(arg[valid_arg])
         arg_class <- "integer"
         arg_length <- ""
     }
@@ -64,7 +64,7 @@ validate_numeric <- function(
         !is.null(arg) &&
         (!is.numeric(arg) || !integer_true || !elements_true || !range_true)
     ) {
-        cli_abort( ## "one-element positive"; "two-element"
+        cli::cli_abort( ## "one-element positive"; "two-element"
             "{.arg {name}} must be a valid {msg} {.cls {arg_class}} \\
             {arg_length}."
         )
@@ -74,14 +74,13 @@ validate_numeric <- function(
 
 
 
-#' @importFrom stringr str_split_fixed
-#' @importFrom readr read_lines
+
 #' @keywords internal
 read_csv_robust <- function(file_path) {
     ## read csv as raw lines. Avoids issues with multiple empty rows & columns
-    read_lines(file_path) |>
-        str_split_fixed(",", n = Inf) |> ## don't print this it takes ages!
-        as_tibble(.name_repair = "unique_quiet")
+    readr::read_lines(file_path) |>
+        stringr::str_split_fixed(",", n = Inf) |> ## don't print this it takes ages!
+        tibble::as_tibble(.name_repair = "unique_quiet")
 }
 
 # read_csv_robust_base <- function(file_path) {
@@ -106,9 +105,8 @@ detect_header_row <- function(data, label, max_row = 100) {
 
     ## validation: "label" must be detected to extract the proper data frame
     if (is.na(header_row) || length(header_row) != 1) {
-        cli_abort("Error detecting data frame. Check file structure.")
-        cli_abort(c(
-            "Error detecting {.val {label}}.",
+        cli::cli_abort(c(
+            "Error detecting {.val {label}} in data.",
             "i" = "Strings are case sensitive and should match exactly. \\
             Check file structure."
         ))

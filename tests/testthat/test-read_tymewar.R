@@ -1,3 +1,7 @@
+test_that("read_tymelive() handles missing file", {
+    expect_error(read_tymelive("nonexistent.csv"), "File not found")
+})
+
 test_that("read_tymelive() returns list with correct structure", {
     file_path <- example_epl("tymewear_live")
     result <- read_tymelive(file_path)
@@ -10,52 +14,54 @@ test_that("read_tymelive() returns list with correct structure", {
 
 test_that("read_tymelive() data has expected columns and types", {
     file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)
+    result <- read_tymelive(file_path)$data
 
-    # Columns
-    expect_contains(names(result$data), c("time", "timestamp", "br", "vt", "ve"))
+    # Columns & rows
+    expect_contains(names(result), c("time", "timestamp", "br", "vt", "ve"))
+    expect_true(nrow(result) > 0)
 
     # Column types
-    expect_s3_class(result$data$timestamp, "POSIXct")
-    expect_type(result$data$time, "double")
-})
-
-test_that("read_tymelive() processes timestamps correctly", {
-    file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)
+    expect_s3_class(result$timestamp, "POSIXct")
+    expect_true(all(sapply(result[names(result) != "timestamp"], is.numeric)))
 
     # Time starts at zero
-    expect_equal(result$data$time[1], 0)
+    expect_equal(result$time[1], 0)
 
     # Time is monotonically increasing
-    expect_true(all(diff(result$data$time) >= 0))
+    expect_true(all(diff(result$time) >= 0))
 
     # Timezone is America/Vancouver
-    expect_equal(attr(result$data$timestamp, "tzone"), "America/Vancouver")
+    expect_equal(attr(result$timestamp, "tzone"), "America/Vancouver")
+})
+
+test_that("read_tymelive() details has expected values", {
+    file_path <- example_epl("tymewear_live")
+    result <- read_tymelive(file_path)$details
+
+    # Columns & rows
+    expect_equal(ncol(result), 2)
+    expect_true(nrow(result) > 0)
+
+    # Values
+    expect_contains(result[[1]], c("gender", "weight", "date", "app-start-time"))
+    any(grepl(c("Male|Female"), result[[2]]))
+    any(grepl(c("1761"), result[[2]]))
+    expect_true(any(!is.na(
+        lubridate::parse_date_time(result[[2]], orders = c("ymd", "HMS"), quiet = TRUE)
+    )))
 })
 
 test_that("read_tymelive() rounds numeric values correctly", {
     file_path <- example_epl("tymewear_live")
     result <- read_tymelive(file_path)
+    data <- result$data
 
-    numeric_cols <- names(result$data)[vapply(result$data, is.numeric, logical(1))]
+    numeric_cols <- names(data)[vapply(data, is.numeric, logical(1))]
 
     for (col in numeric_cols) {
-        decimals <- nchar(sub(".*\\.", "", as.character(result$data[[col]])))
+        decimals <- nchar(sub(".*\\.", "", as.character(data[[col]])))
         expect_true(all(decimals <= 8, na.rm = TRUE))
     }
-})
-
-test_that("read_tymelive() details contains metadata", {
-    file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)
-
-    expect_true(nrow(result$details) > 0)
-    expect_true(ncol(result$details) > 0)
-})
-
-test_that("read_tymelive() handles missing file", {
-    expect_error(read_tymelive("nonexistent.csv"), "File not found")
 })
 
 test_that("read_tymelive() timestamps should match", {
@@ -64,30 +70,30 @@ test_that("read_tymelive() timestamps should match", {
     # result$details |> print(n=Inf)
 
     start_time <- result$details |>
-        filter(grepl("app-start-time", ...1)) |>
-        pull(2) |>
+        dplyr::filter(grepl("app-start-time", ...1)) |>
+        dplyr::pull(2) |>
         as.numeric() #|>
-        # as_datetime(tz = "America/Vancouver")
+        # lubridate::as_datetime(tz = "America/Vancouver")
 
     end_time <- result$details |>
-        filter(grepl("app-end-time", ...1)) |>
-        pull(2) |>
+        dplyr::filter(grepl("app-end-time", ...1)) |>
+        dplyr::pull(2) |>
         as.numeric() #|>
-        # as_datetime(tz = "America/Vancouver")
+        # lubridate::as_datetime(tz = "America/Vancouver")
 
     details_duration <- result$details |>
-        filter(grepl("duration", ...1)) |>
-        pull(2) |>
+        dplyr::filter(grepl("duration", ...1)) |>
+        dplyr::pull(2) |>
         lubridate::ms() |>
         as.numeric()
 
     data_duration <- result$data |>
-        pull("timestamp") |>
+        dplyr::pull("timestamp") |>
         as.numeric() |>
         range() |>
         diff()
 
-    ## Not true for some reason
+    ## Not true but should be true...
     # expect_equal(end_time - start_time, details_duration)
     # expect_equal(end_time - start_time, data_duration)
 

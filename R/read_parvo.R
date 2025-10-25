@@ -22,9 +22,6 @@
 #' - `parvo$details` contains the file metadata.
 #' - `parvo$events` contains manual event inputs.
 #'
-#' @importFrom stringr str_replace_all
-#' @importFrom stringr str_squish
-#' @importFrom purrr imap
 #'
 #' @export
 read_parvo <- function(
@@ -48,7 +45,7 @@ read_parvo <- function(
             error = \(e) {
                 ## error message for default .XLS export (obsolete, unreadable format)
                 if (grepl("libxls error", e$message)) {
-                    cli_abort(c(
+                    cli::cli_abort(c(
                         "{e}",
                         "i" = "Parvo `.XLS` export format cannot be opened. \\
                         Export as `.CSV` or re-save the file as `.xlsx`."
@@ -62,7 +59,7 @@ read_parvo <- function(
         data_raw <- read_csv_robust(file_path)
     } else {
         ## validation: check file types
-        cli_abort(c(
+        cli::cli_abort(c(
             "{.val file_path = {file_path}}.",
             "i" = "Unrecognised file type. Only {.arg .xls(x)} or \\
             {.arg .csv} currently recognised."
@@ -72,10 +69,12 @@ read_parvo <- function(
     validate_data_frame(data_raw)
 
     data_clean <- data_raw |>
-        mutate(
-            across(
-                everything(), \(.x) {
-                    str_squish(str_replace_all(.x, "[^A-Za-z0-9.,: ]", ""))
+        dplyr::mutate(
+            dplyr::across(
+                dplyr::everything(), \(.x) {
+                    stringr::str_squish(
+                        stringr::str_replace_all(.x, "[^A-Za-z0-9.,:_\\- ]", "")
+                    )
                 })
         )
 
@@ -86,8 +85,8 @@ read_parvo <- function(
     ## strings to detect details
     search_offset <- list(
         "Name" = c(1:2),
-        "Age" = 1,
         "Sex" = 1,
+        "Age" = 1,
         "Height" = 3,
         "Weight" = 3,
         "Insp. temp" = 1,
@@ -112,29 +111,47 @@ read_parvo <- function(
     )
 
     ## helper function to retrieve value where search string detected
-    find_value <- function(search_term, col_offset = 1) {
+    find_parvo_details <- function(search_term, col_offset = 1) {
         col <- which(grepl(search_term, details_table))
         if (length(col) == 0) {
             return(NA)
         }
         row <- which(grepl(search_term, details_table[[col]]))
         vec <- unlist(details_table[row, col + col_offset], use.names = FALSE)
-        sub(",\\s*$", "", paste(vec, collapse = ", "))
+        string <- paste(vec, collapse = ", ")
+        ## remove trailing "," and "File number" from .xlsx cell C
+        clean_string <- sub(
+            "(,\\s*File number)?\\s*,?\\s*$",
+            "",
+            string,
+            ignore.case = TRUE
+        )
+        ## remove redundant duplicated string after ", "
+        sub("^(.+),\\s*\\1$", "\\1", clean_string)
     }
 
     ## iterate over search strings
-    parvo_details <- purrr::imap(search_offset, \(.x, .n) find_value(.n, .x)) |>
-        as_tibble() |>
-        mutate(
+    parvo_details <- purrr::imap(search_offset, \(.x, .n) {
+        find_parvo_details(.n, .x)
+    }) |>
+        tibble::as_tibble() |>
+        dplyr::mutate(
             Date = date_string,
-            across( ## convert appropriate columns to numeric
-                any_of(names(search_offset)[c(2, 4:11)]),
+            ## convert Sex == "F" ~ "Female" to avoid detection as logical
+            dplyr::across(
+                dplyr::any_of("Sex"), \(.x) {
+                    dplyr::if_else(.x == "F", "Female", "Male")
+                }),
+            dplyr::across( ## convert appropriate columns to numeric
+                dplyr::any_of(names(search_offset)[3:length(search_offset)]),
                 \(.x) as.numeric(.x)
-            ), ## convert Sex == "F" ~ "Female" to avoid detection as logical
-            across(any_of("Sex"), \(.x) if_else(.x == "F", "Female", "Male")),
+            ),
+            dplyr::across(
+                dplyr::where(is.numeric), \(.x) round(.x, 8)
+            ),
         ) |>
-        rename(`CO2 Gain` = "CO2.*?gain") |>
-        relocate(Date)
+        dplyr::rename(`CO2 Gain` = "CO2.*?gain") |>
+        dplyr::relocate(Date)
 
     ## parvo_data ============================================
     data_table <- data_clean[header_row:nrow(data_clean), ]
@@ -174,11 +191,11 @@ read_parvo <- function(
     })(data_table)
 
     parvo_data <- data_table |>
-        slice_tail(n = -4) |>
-        setNames(make.unique(parvo_names)) |>
-        ## convert columns from character & suppress confirmation
-        mutate(
-            across(everything(), \(.x) {
+        dplyr::slice_tail(n = -4) |>
+        stats::setNames(make.unique(parvo_names)) |>
+        dplyr::mutate(
+            ## convert columns from character & suppress confirmation
+            dplyr::across(dplyr::everything(), \(.x) {
                 num_x <- suppressWarnings(as.numeric(.x))
                 if (sum(!is.na(num_x)) > sum(is.na(num_x))) {
                     num_x
@@ -187,7 +204,7 @@ read_parvo <- function(
                 }
             }),
             ## convert `TIME` in "mm:ss" or "min" to seconds
-            across(all_of(time_column), \(.x) {
+            dplyr::across(dplyr::all_of(time_column), \(.x) {
                 if (is.character(.x)) {
                     as.numeric(ms(.x))
                 } else {
@@ -199,20 +216,21 @@ read_parvo <- function(
         drop_rows_after_first_na() |>
         (\(.df) {
             if (all(c("VO2", "VCO2") %in% parvo_names)) {
-                mutate(
+                dplyr::mutate(
                     .df,
                     ## confirm VO2 & VCO2 in L/min
                     VO2_test = max(VO2, na.rm = TRUE) > 1000,
                     VCO2_test = max(VCO2, na.rm = TRUE) > 1000,
-                    VO2_L = if_else(VO2_test, VO2 / 1000, VO2),
-                    VCO2_L = if_else(VCO2_test, VCO2 / 1000, VCO2),
+                    VO2_L = dplyr::if_else(VO2_test, VO2 / 1000, VO2),
+                    VCO2_L = dplyr::if_else(VCO2_test, VCO2 / 1000, VCO2),
 
                     ## overwrite non-physiological values to NA when VO2 < 100
                     ## TODO may need to adjust non-physiological criteria
                     ## TODO what other columns to exclude?
-                    across(-any_of(c(time_column, "HR", "WorkR")), \(.x) {
-                        if_else(VO2_L < 0.100, NA_real_, .x)
-                    }),
+                    dplyr::across(
+                        -dplyr::any_of(c(time_column, "HR", "WorkR")), \(.x) {
+                            dplyr::if_else(VO2_L < 0.100, NA_real_, .x)
+                        }),
 
                     ## Peronnet & Massicotte 1991 substrate oxidation in g/min
                     FatOx = 1.695 * VO2_L - 1.701 * VCO2_L, ## g/min
@@ -237,34 +255,38 @@ read_parvo <- function(
                         (WorkR * 60) / (VO2_L * O2kJ * 1000)
                     },
                 ) |>
-                    select(-c(VO2_test, VCO2_test, VO2_L, VCO2_L))
+                    dplyr::select(-c(VO2_test, VCO2_test, VO2_L, VCO2_L))
             } else {
                 .df
             }
         })() |>
-        mutate(
+        dplyr::mutate(
             METS = if ("VO2kg" %in% parvo_names) {
                 VO2kg / 3.5
             },
             ## convert blank values to NA
-            across(
-                where(is.numeric),
-                \(.x) if_else(!is.finite(.x), NA_real_, .x)
+            dplyr::across(
+                dplyr::where(is.numeric),
+                \(.x) dplyr::if_else(!is.finite(.x), NA_real_, .x)
             ),
             ## round to avoid floating point
-            across(where(is.numeric), \(.x) round(.x, 8)),
+            dplyr::across(
+                dplyr::where(is.numeric), \(.x) round(.x, 8)
+            ),
         ) |>
         ## drops rows where time_column is NA
-        drop_na(all_of(time_column))
+        tidyr::drop_na(dplyr::all_of(time_column))
 
     ## events_data ============================================
     rows <- which(grepl("Events", data_clean[[1]]))
     rows <- ifelse(length(rows) > 0, rows, nrow(data_clean))
     events_data <- data_clean |>
-        select(!!time_column := 1, "Events" = 2) |>
-        slice(rows:nrow(data_clean)) |>
-        filter(if_any(2, \(.x) .x != "")) |>
-        mutate(across(all_of(time_column), \(.x) as.numeric(.x) * 60))
+        dplyr::select(!!time_column := 1, "Events" = 2) |>
+        dplyr::slice(rows:nrow(data_clean)) |>
+        dplyr::filter(dplyr::if_any(2, \(.x) .x != "")) |>
+        dplyr::mutate(
+            dplyr::across(dplyr::all_of(time_column), \(.x) as.numeric(.x) * 60)
+        )
 
     ## add timestamp for sync =====================
     if (add_timestamp) {
@@ -274,7 +296,10 @@ read_parvo <- function(
         )
         parvo_data$timestamp <- start_dttm + parvo_data[[time_column]]
         parvo_data <- parvo_data |>
-            relocate(any_of("timestamp"), .after = all_of(time_column))
+            dplyr::relocate(
+                dplyr::any_of("timestamp"),
+                .after = dplyr::all_of(time_column)
+            )
     }
 
     ## return =====================================

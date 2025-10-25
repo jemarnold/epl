@@ -35,51 +35,67 @@ read_tymelive <- function(file_path) {
     ## details ===============================
     ## extract file details/metadata at the top of the file
     details <- data_raw |>
-        slice(1:(header_row - 3)) |>
+        dplyr::slice(1:(header_row - 3)) |>
         ## drop pause_resume row which creates redundant columns
-        filter(!grepl("pause_resume", ...1)) |>
+        dplyr::filter(!grepl("pause_resume", ...1)) |>
         ## drops empty columns
-        select(where(\(.x) any(nzchar(.x) & !is.na(.x)))) |>
+        dplyr::select(
+            dplyr::where(\(.x) any(nzchar(.x) & !is.na(.x)))
+        ) |>
         ## drops empty rows
-        filter(if_any(everything(), \(.x) nzchar(.x) & !is.na(.x)))
+        dplyr::filter(
+            dplyr::if_any(dplyr::everything(), \(.x) nzchar(.x) & !is.na(.x))
+        )
 
     ## pull start time from details and correct for local timezone
     start_dttm <- details |>
-        filter(grepl("app-start-time", ...1, ignore.case = TRUE)) |>
-        pull(2) |>
+        dplyr::filter(grepl("app-start-time", ...1, ignore.case = TRUE)) |>
+        dplyr::pull(2) |>
         as.numeric() |>
-        as_datetime(tz = "America/Vancouver")
+        lubridate::as_datetime(tz = "America/Vancouver")
 
     ## data table ====================================
     tyme_data <- data_raw |>
-        row_to_names(header_row) |>
+        janitor::row_to_names(header_row) |>
         suppressWarnings() |>
         ## drops empty columns introduced by horizontal data at the bottom
         (\(.df) {
-            select(.df, all_of(seq_len(which(names(.df) == "")[1] - 1)))
+            .df |>
+                dplyr::select(
+                    dplyr::all_of(seq_len(which(names(.df) == "")[1] - 1))
+                )
         })() |>
         ## rename and select columns
-        select(any_of(c(
-            timestamp = "ts", br = "rbr", vt = "rvt", ve = "rve"
-        ))) |>
+        dplyr::select(
+            dplyr::any_of(
+                c(timestamp = "ts", br = "rbr", vt = "rvt", ve = "rve")
+            )
+        ) |>
         ## force type to numeric
-        mutate(across(everything(), \(.x) as.numeric(.x))) |>
+        dplyr::mutate(
+            dplyr::across(dplyr::everything(), \(.x) as.numeric(.x))
+        ) |>
         suppressWarnings() |>
         ## drops rows after/including the first row with all NA
         drop_rows_after_first_na() |>
-        mutate(
+        dplyr::mutate(
             ## convert timestamp to correct time zone and create time column
-            timestamp = as_datetime(timestamp / 1000, tz = "America/Vancouver"),
+            timestamp = lubridate::as_datetime(
+                timestamp / 1000,
+                tz = "America/Vancouver"
+            ),
             time = as.numeric(timestamp - timestamp[1]),
             ## convert blank values to NA
-            across(
-                where(is.numeric),
-                \(.x) if_else(!is.finite(.x), NA_real_, .x)
+            dplyr::across(
+                dplyr::where(is.numeric),
+                \(.x) dplyr::if_else(!is.finite(.x), NA_real_, .x)
             ),
             ## round to avoid floating point
-            across(where(is.numeric), \(.x) round(.x, 8)),
+            dplyr::across(
+                dplyr::where(is.numeric), \(.x) round(.x, 8)
+            ),
         ) |>
-        relocate(time, timestamp)
+        dplyr::relocate(time, timestamp)
 
     ## return ================================
     return(list(
