@@ -24,18 +24,13 @@
 #'
 #' @export
 read_parvo <- function(
-        file_path,
+        file_path, ## file_path <- example_epl("parvo_binned")
         time_column = "TIME",
         add_timestamp = FALSE
 ) {
     ## read file ===========================================
     ## validation: check file exists
-    if (!file.exists(file_path)) {
-        cli_abort(
-            "{.val file_path = {file_path}} not found. \\
-            Check that file exists."
-        )
-    }
+    validate_file_path(file_path)
 
     ## read parvo file
     if (grepl("\\.xls(x)?$", file_path, ignore.case = TRUE)) {
@@ -60,21 +55,7 @@ read_parvo <- function(
             }
         )
     } else if (grepl("\\.csv$", file_path, ignore.case = TRUE)) {
-        ## read raw lines from csv. Avoids issues with multiple empty rows
-        all_lines <- readLines(file_path, warn = FALSE)
-        row_vectors <- strsplit(all_lines, ",")
-        ## pad row length with NA for explicit rectangular data table
-        max_cols <- max(lengths(row_vectors))
-        rows_to_pad <- lengths(row_vectors) < max_cols
-        row_vectors[rows_to_pad] <- lapply(row_vectors[rows_to_pad], \(.x) {
-            length(.x) <- max_cols
-            .x
-        })
-
-        data_raw <- as_tibble(
-            do.call(rbind, row_vectors),
-            .name_repair = "unique_quiet"
-        )
+        data_raw <- read_csv_robust(file_path)
     } else {
         ## validation: check file types
         cli_abort(c(
@@ -84,26 +65,20 @@ read_parvo <- function(
         ))
     }
 
+    validate_data_frame(data_raw)
+
     data_clean <- data_raw |>
         mutate(
             across(
                 everything(), \(.x) {
-                    str_squish(str_replace_all(.x, "[^A-Za-z0-9.,: ]", ""))
+                    stringr::str_squish(
+                        stringr::str_replace_all(.x, "[^A-Za-z0-9.,: ]", "")
+                    )
                 })
         )
 
-    ## detect header row where time_column exists
-    header_row <- which(apply(data_clean[1:30, ], 1, \(.row) {
-        time_column %in% .row
-    }))
-
-    ## validation: time_column must be detected to extract the proper data frame
-    if (rlang::is_empty(header_row) || length(header_row) > 2) {
-        cli_abort(
-            "Error detecting {.val time_column = {time_column}}. \\
-            {.val time_column} is case sensitive and should match exactly."
-        )
-    }
+    ## detect header row with time_column
+    header_row <- detect_header_row(data_raw, time_column, 100)
 
     ## parvo_details =====================================
     ## strings to detect details
@@ -122,61 +97,79 @@ read_parvo <- function(
         "CO2_gain" = "CO2.*?gain"
     )
 
+    ## columns for where to search for string
+    search_col <- c(NA, 1, 1, 4, 1, 6, 2, 5, 8, 1, 3, 5)
+    ## columns for where to retrieve string
+    return_col <- c(NA, 2, 2, 5, 4, 9, 3, 6, 9, 2, 4, 6)
+
     ## create dataframe with details
-    parvo_details <- list(
-        string = details_string,
-        ## columns for where to search for string
-        search_col = c(NA, 1, 1, 4, 1, 6, 2, 5, 8, 1, 3, 5),
-        ## columns for where to retrieve string
-        return_col = c(NA, 2, 2, 5, 4, 9, 3, 6, 9, 2, 4, 6)
-    ) |>
-        purrr::pmap(\(string, search_col, return_col) {
+    parvo_details <- sapply(seq_along(details_string), \(.i) {
+        string <- details_string[.i]
+        if (string != "Date") {
+            rows <- which(grepl(string, data_clean[[search_col[.i]]]))
+        }
+
+        if (string == "Date") {
             ## extra formatting conditions for Date & Name
-            if (string == "Date") {
-                paste(
-                    gsub(" ", "", paste(data_clean[3, c(2, 4, 6)], collapse = "-")),
-                    gsub(" ", "", paste(data_clean[3, c(7, 9, 10)], collapse = ":"))
-                )
-            } else if (string == "Name") {
-                rows <- grepl(string, data_clean[[search_col]])
-                if (grepl(",", data_clean[rows, ][[return_col]])) {
-                    ## remove hanging end ","
-                    sub(",\\s*$", "", data_clean[rows, ][[return_col]])
-                } else {
-                    ## condition where "," in name forces column separation
-                    name <- paste(
-                        data_clean[rows, ][[return_col]],
-                        data_clean[rows, ][[return_col + 1]],
-                        sep = ", "
-                    )
-                    sub(",\\s*$", "", name)
-                }
+            paste(
+                gsub(" ", "", paste(data_clean[3, c(2, 4, 6)], collapse = "-")),
+                gsub(" ", "", paste(data_clean[3, c(7, 9, 10)], collapse = ":"))
+            ) |>
+                ymd_hms()
+        } else if (string == "Name") {
+            name_val <- data_clean[rows, return_col[.i]]
+
+            if (grepl(",", name_val)) {
+                ## remove hanging end ","
+                sub(",\\s*$", "", name_val)
             } else {
-                rows <- grepl(string, data_clean[[search_col]])
-                data_clean[rows, ][[return_col]]
+                ## condition where "," in name forces column separation
+                sub(",\\s*$", "", paste(
+                    name_val,
+                    data_clean[rows, return_col[.i] + 1],
+                    sep = ", "
+                ))
             }
-        }) |>
-        ## remove length 0 list items (e.g. missing CO2_gain)
-        (\(.l) .l[lapply(.l, length) > 0])() |>
-        as_tibble() |>
-        mutate(
-            ## convert Sex to avoid detection "F" as logical
-            across(
-                matches("sex", ignore.case = TRUE),
-                \(.x) case_when(.x == "F" ~ "Female",
-                                .x == "M" ~ "Male",
-                                TRUE ~ .x)
-            )
-        ) |>
-        ## convert columns from character & suppress confirmation
-        type_convert() |>
-        suppressMessages() |>
-        mutate(
-            across(
-                where(is.numeric) & !any_of(tail(names(details_string), 3)),
-                \(.x) signif(.x, 3)
-            )
+        } else if (length(rows) > 0) {
+            data_clean[rows, return_col[.i]]
+        } else {
+            character(0)
+        }
+    }, simplify = FALSE, USE.NAMES = TRUE)
+
+    ## remove empty elements and convert to data frame
+    parvo_details <- as.data.frame(
+        parvo_details[lengths(parvo_details) > 0],
+        stringsAsFactors = FALSE
+    ) |>
+        setNames(names(details_string)) |>
+        tibble::as_tibble()
+
+    ## convert Sex to avoid detection "F" as logical
+    if ("Sex" %in% names(parvo_details)) {
+        parvo_details$Sex <- ifelse(
+            parvo_details$Sex == "F",
+            "Female",
+            "Male"
         )
+    }
+
+    ## type conversion and rounding
+    num_cols <- sapply(parvo_details, \(.x) {
+        !is.na(suppressWarnings(as.numeric(.x)))
+    })
+    num_cols["Date"] <- FALSE
+    parvo_details[num_cols] <- lapply(parvo_details[num_cols], \(.x) {
+        as.numeric(.x)
+    })
+
+    exact_cols <- c("STPD_to_BTPS", "O2_gain", "CO2_gain")
+    round_cols <- names(parvo_details)[
+        num_cols & !names(parvo_details) %in% exact_cols
+    ]
+    parvo_details[round_cols] <- lapply(parvo_details[round_cols], \(.x) {
+        signif(.x, digits = 3)
+    })
 
     ## parvo_data ============================================
     data_table <- data_clean[header_row:nrow(data_clean), ]
