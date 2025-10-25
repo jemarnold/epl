@@ -17,7 +17,11 @@ File paths for selected example files stored in this package.
 Get path to \code{{epl}} example files
 }
 \examples{
+## lists all files
 example_epl()
+## partial matching will error if matches multiple
+## example_epl("tymewear")
+
 example_epl("tymewear_live")
 
 }

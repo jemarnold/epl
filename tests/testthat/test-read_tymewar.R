@@ -1,10 +1,10 @@
-test_that("read_tymelive() handles missing file", {
-    expect_error(read_tymelive("nonexistent.csv"), "File not found")
+test_that("read_tymewear.live() handles missing file", {
+    expect_error(read_tymewear("nonexistent.csv"), "File not found")
 })
 
-test_that("read_tymelive() returns list with correct structure", {
+test_that("read_tymewear.live() returns list with correct structure", {
     file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)
+    result <- read_tymewear(file_path)
 
     expect_type(result, "list")
     expect_named(result, c("data", "details"))
@@ -12,9 +12,9 @@ test_that("read_tymelive() returns list with correct structure", {
     expect_s3_class(result$details, "data.frame")
 })
 
-test_that("read_tymelive() data has expected columns and types", {
+test_that("read_tymewear.live() data has expected columns and types", {
     file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)$data
+    result <- read_tymewear(file_path)$data
 
     # Columns & rows
     expect_contains(names(result), c("time", "timestamp", "br", "vt", "ve"))
@@ -34,9 +34,9 @@ test_that("read_tymelive() data has expected columns and types", {
     expect_equal(attr(result$timestamp, "tzone"), "America/Vancouver")
 })
 
-test_that("read_tymelive() details has expected values", {
+test_that("read_tymewear.live() details has expected values", {
     file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)$details
+    result <- read_tymewear(file_path)$details
 
     # Columns & rows
     expect_equal(ncol(result), 2)
@@ -51,9 +51,9 @@ test_that("read_tymelive() details has expected values", {
     )))
 })
 
-test_that("read_tymelive() rounds numeric values correctly", {
+test_that("read_tymewear.live() rounds numeric values correctly", {
     file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)
+    result <- read_tymewear(file_path)
     data <- result$data
 
     numeric_cols <- names(data)[vapply(data, is.numeric, logical(1))]
@@ -64,9 +64,9 @@ test_that("read_tymelive() rounds numeric values correctly", {
     }
 })
 
-test_that("read_tymelive() timestamps should match", {
+test_that("read_tymewear.live() timestamps should match", {
     file_path <- example_epl("tymewear_live")
-    result <- read_tymelive(file_path)
+    result <- read_tymewear(file_path)
     # result$details |> print(n=Inf)
 
     start_time <- result$details |>

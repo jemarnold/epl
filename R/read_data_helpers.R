@@ -76,9 +76,9 @@ validate_numeric <- function(
 
 
 #' @keywords internal
-read_csv_robust <- function(file_path) {
+read_csv_robust <- function(file_path, n = Inf) {
     ## read csv as raw lines. Avoids issues with multiple empty rows & columns
-    readr::read_lines(file_path) |>
+    readr::read_lines(file_path, n_max = n) |>
         stringr::str_split_fixed(",", n = Inf) |> ## don't print this it takes ages!
         tibble::as_tibble(.name_repair = "unique_quiet")
 }
@@ -95,12 +95,13 @@ read_csv_robust <- function(file_path) {
 
 
 #' @keywords internal
-detect_header_row <- function(data, label, max_row = 100) {
+detect_header_row <- function(data, label, max_row = 100, max_col = 50) {
+    cols <- seq_len(min(max_row, nrow(data)))
+    rows <- seq_len(min(max_col, ncol(data)))
     ## detect header row with "label"
-    header_match <- apply(
-        data[seq_len(min(max_row, nrow(data))), , drop = FALSE],
-        1, \(.row) any(.row == label, na.rm = TRUE)
-    )
+    header_match <- apply(data[cols, rows, drop = FALSE], 1, \(.row) {
+        any(.row == label, na.rm = TRUE)
+    })
     header_row <- which(header_match)[1]
 
     ## validation: "label" must be detected to extract the proper data frame
@@ -175,16 +176,31 @@ between <- function(x, left, right, inclusive = TRUE) {
 #' File paths for selected example files stored in this package.
 #'
 #' @examples
+#' ## lists all files
 #' example_epl()
+#' ## partial matching will error if matches multiple
+#' ## example_epl("tymewear")
+#> Error in `example_epl()`:
+#> ! Multiple files match "tymewear":
+#> ℹ Matching files: "tymewear_live.csv" and "tymewear_post.csv"
+#'
 #' example_epl("tymewear_live")
 #'
 #' @export
 example_epl <- function(file = NULL) {
     dir_files <- dir(system.file("extdata", package = "epl"))
     if (is.null(file)) {
-        dir_files
-    } else {
-        file <- match.arg(file, choices = dir_files)
-        system.file("extdata", file, package = "epl", mustWork = TRUE)
+        return(dir_files)
     }
+
+    matches <- grep(file, dir_files, fixed = TRUE, value = TRUE)
+    if (length(matches) > 1) {
+        cli::cli_abort(c(
+            "Multiple files match {.val {file}}:",
+            "i" = "Matching files: {.val {matches}}"
+        ))
+    }
+
+    file <- match.arg(file, choices = dir_files)
+    system.file("extdata", file, package = "epl", mustWork = TRUE)
 }

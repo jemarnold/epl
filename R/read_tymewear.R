@@ -1,25 +1,74 @@
 #' Read Tymewear Exported CSV Data
 #'
 #' Read *"Live Processed CSV"* or *"Post Processed CSV"* files exported from
-#' Tymewear VitalPro and return recorded data table and file metadata.
+#' *Tymewear VitalPro* and return a list of two data frames with recorded data
+#' and file details
 #'
 #' @param file_path The file path as a character string, including *.csv*
 #' file type.
+#' @param ... Additional arguments passed to `read_tymewear`.
+#'
+#' @details
+#' This generic function detects *Tymewear* exported file type by searching the
+#' top of the file for recognisable column data belonging to either
+#' *"tymewear.live"* or *"tymewear.post"*, and will read and import the
+#' resulting file.
 #'
 #' @return A list with two [tibbles][tibble::tibble-package].
 #' - `tymelive$data` contains the data table.
 #' - `tymelive$details` contains the file metadata.
 #'
+#' @examples
+#' # retrieve example tymewear file
+#' file_path <- example_epl("tymewear_live")
+#' tyme <- read_tymewear(file_path)
+#' tyme
 #'
-#' @name read_tymewear
-NULL
-
-
-#' @rdname read_tymewear
-#' @order 1
 #' @export
-## file_path <- example_epl("tymewear_live")
-read_tymelive <- function(file_path) {
+read_tymewear <- function(file_path, ...) {
+    ## validate file_path exists
+    validate_file_path(file_path)
+    ## read csv avoiding formatting issues
+    data_raw <- read_csv_robust(file_path, n = 100)
+    ## validate is data frame
+    validate_data_frame(data_raw)
+
+    ## try detecting header row to determine file type
+    is_tymelive <- tryCatch(
+        detect_header_row(data_raw, "ts", 100, 20),
+        error = \(e) NULL
+    )
+
+    is_tymepost <- tryCatch(
+        detect_header_row(data_raw, "Time", 50, 5),
+        error = \(e) NULL
+    )
+
+    device_type <- if (is.numeric(is_tymelive)) {
+        "live"
+    } else if (is.numeric(is_tymepost)) {
+        "post"
+    } else {
+        cli::cli_abort(c(
+            "{.arg file_path} = {.val {file_path}}",
+            "x" = "File does not appear to be a known {.val Tymewear} \\
+            export. Check file structure."
+        ))
+    }
+
+    # Create object with class for method dispatch
+    file_path <- structure(
+        list(file_path = file_path),
+        class = c(device_type, "tymewear")
+    )
+
+    UseMethod("read_tymewear", file_path)
+}
+
+
+
+#' @export
+read_tymewear.live <- function(file_path, ...) {
     ## read csv ================================
     ## validation: check file exists
     validate_file_path(file_path)
@@ -106,3 +155,12 @@ read_tymelive <- function(file_path) {
 
 
 
+
+#' @export
+read_tymewear.post <- function(file_path, ...) {
+    cli::cli_abort(c(
+        "{.arg file_path} = {.val {file_path}}",
+        "!" = 'Class = c({.val tymewear}, {.val post})',
+        "x" = "Read method currently under development for class: {.val post}"
+    ))
+}
