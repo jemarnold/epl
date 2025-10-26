@@ -144,7 +144,7 @@ drop_rows_after_first_na <- function(data) {
 #' @param left,right Numeric boundary values. Both `left` and `right` are
 #'   recycled to the size of `x`.
 #' @param inclusive A logical to specify that `left` and `right` boundary
-#'   values should be accepted in the range (the *default*) or excluded if
+#'   values should be accepted in the range (the default) or excluded if
 #'   `FALSE`.
 #'
 #' @details

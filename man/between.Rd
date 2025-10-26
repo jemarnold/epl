@@ -13,7 +13,7 @@ between(x, left, right, inclusive = TRUE)
 recycled to the size of \code{x}.}
 
 \item{inclusive}{A logical to specify that \code{left} and \code{right} boundary
-values should be accepted in the range (the \emph{default}) or excluded if
+values should be accepted in the range (the default) or excluded if
 \code{FALSE}.}
 }
 \value{

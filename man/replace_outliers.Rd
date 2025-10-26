@@ -13,14 +13,14 @@ replace_outliers(x, method = c("median", "NA"), width, t0 = 3)
 (see \emph{Details} for more on each method):
 \describe{
 \item{\code{"median"}}{Replaces outliers with the median within a locally
-centred window defined by either \code{width} (the \emph{default}).}
+centred window defined by either \code{width} (the default).}
 \item{\code{"NA"}}{Replaces outliers with \code{NA}.}
 }}
 
 \item{width}{An integer defining the sample window in which to detect local
 outliers. Where \verb{window = -width < idx < width}.}
 
-\item{t0}{An integer for the local outlier threshold. \emph{Default} \code{t0 = 3}
+\item{t0}{An integer for the local outlier threshold. Default \code{t0 = 3}
 (Pearson's rule; analogous to 3σ rule).}
 }
 \value{
@@ -40,7 +40,7 @@ This function will pass through any missing \code{NA} values in the input vector
 returned vector, but not replaced with the local median value.
 
 A high \code{t0} threshold makes the outlier filter more forgiving, a low one
-will declare more points to be outliers. \code{t0 = 3} (the \emph{default})
+will declare more points to be outliers. \code{t0 = 3} (the default)
 corresponds to Pearson's 3 sigma edit rule, \code{t0 = 0} to Tukey's median
 filter.
 }

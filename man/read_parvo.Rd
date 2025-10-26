@@ -11,7 +11,7 @@ read_parvo(file_path, time_column = "TIME", add_timestamp = FALSE)
 \emph{.xlsx} file type.}
 
 \item{time_column}{A character string for the time column in the data table.
-\emph{Defaults} to \code{time_column = "TIME"}. Used to detect the location of the
+Defaults to \code{time_column = "TIME"}. Used to detect the location of the
 data table.}
 
 \item{add_timestamp}{A logical to add a "timestamp" column to the data table

@@ -8,12 +8,12 @@
 #'   (see *Details* for more on each method):
 #'   \describe{
 #'      \item{`"median"`}{Replaces outliers with the median within a locally
-#'      centred window defined by either `width` (the *default*).}
+#'      centred window defined by either `width` (the default).}
 #'      \item{`"NA"`}{Replaces outliers with `NA`.}
 #'   }
 #' @param width An integer defining the sample window in which to detect local
 #'   outliers. Where `window = -width < idx < width`.
-#' @param t0 An integer for the local outlier threshold. *Default* `t0 = 3`
+#' @param t0 An integer for the local outlier threshold. Default `t0 = 3`
 #'   (Pearson's rule; analogous to 3σ rule).
 #'
 #' @details
@@ -26,7 +26,7 @@
 #'   returned vector, but not replaced with the local median value.
 #'
 #' A high `t0` threshold makes the outlier filter more forgiving, a low one
-#'   will declare more points to be outliers. `t0 = 3` (the *default*)
+#'   will declare more points to be outliers. `t0 = 3` (the default)
 #'   corresponds to Pearson's 3 sigma edit rule, `t0 = 0` to Tukey's median
 #'   filter.
 #'

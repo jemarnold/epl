@@ -7,7 +7,7 @@
 #' @param file_path The file path as a character string, including *.csv* or
 #'   *.xlsx* file type.
 #' @param time_column A character string for the time column in the data table.
-#'   *Defaults* to `time_column = "TIME"`. Used to detect the location of the
+#'   Defaults to `time_column = "TIME"`. Used to detect the location of the
 #'   data table.
 #' @param add_timestamp A logical to add a "timestamp" column to the data table
 #'   with date-time values, useful for synchronisation with other recordings by
