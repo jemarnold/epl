@@ -35,6 +35,7 @@ values for later restoration with \code{restore_na()}.
 after processing valid non-\code{NA} values returned from \code{preserve_na()}.
 }
 \examples{
+\dontrun{
 x <- c(1, NA, 3, NA, 5)
 na_info <- preserve_na(x)
 ## process with a function that would normally fail on NA
@@ -48,6 +49,7 @@ na_info <- preserve_na(x)
 y <- tolower(na_info$x_valid)
 result <- restore_na(y, na_info)
 result
+}
 
 }
 \keyword{internal}

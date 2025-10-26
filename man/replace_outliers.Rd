@@ -21,7 +21,7 @@ centred window defined by either \code{width} (the \emph{default}).}
 outliers. Where \verb{window = -width < idx < width}.}
 
 \item{t0}{An integer for the local outlier threshold. \emph{Default} \code{t0 = 3}
-(Pearson's rule).}
+(Pearson's rule; analogous to 3σ rule).}
 }
 \value{
 A numeric vector of filtered data.
@@ -35,9 +35,9 @@ The default \code{method = "median"} will replace outliers with the local median
 value, as in \code{\link[pracma:hampel]{pracma::hampel()}}. Otherwise, \code{method = "NA"} will
 replace outliers with \code{NA}.
 
-This function can be run on numeric vectors with missing \code{NA} values. \code{NA}
-values in \code{x} are excluded from processing and restored in the returned
-vector.
+This function will pass through any missing \code{NA} values in the input vector
+\code{x}. \code{NA} values in \code{x} are excluded from processing and restored in the
+returned vector, but not replaced with the local median value.
 
 A high \code{t0} threshold makes the outlier filter more forgiving, a low one
 will declare more points to be outliers. \code{t0 = 3} (the \emph{default})

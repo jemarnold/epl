@@ -7,6 +7,7 @@
 #' @importFrom readxl read_excel
 #' @importFrom rlang !!
 #' @importFrom rlang :=
+#' @importFrom stats median
 #' @importFrom stats setNames
 ## usethis namespace: end
 NULL

@@ -7,13 +7,13 @@ test_that("replace_outliers() returns unchanged vector with no outliers", {
 })
 
 test_that("replace_outliers() detects and replaces outliers with median", {
-    x <- c(1:10, 100, 12:20)  # 100 is clear outlier
+    x <- c(1:10, 100, 11:20)  # 100 is clear outlier
     result <- replace_outliers(x, width = 3)
 
     expect_type(result, "double")
     expect_length(result, length(x))
     expect_true(result[11] != 100)  # outlier replaced
-    expect_true(result[11] == median(result[8:14]))  # outlier replaced
+    expect_true(result[11] == median(result[c(8:10, 12:14)]))  # outlier replaced
     expect_false(any(is.na(result)))
 })
 

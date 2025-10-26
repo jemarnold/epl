@@ -14,16 +14,16 @@
 #' @param width An integer defining the sample window in which to detect local
 #'   outliers. Where `window = -width < idx < width`.
 #' @param t0 An integer for the local outlier threshold. *Default* `t0 = 3`
-#'   (Pearson's rule).
+#'   (Pearson's rule; analogous to 3σ rule).
 #'
 #' @details
 #' The default `method = "median"` will replace outliers with the local median
 #'   value, as in [pracma::hampel()]. Otherwise, `method = "NA"` will
 #'   replace outliers with `NA`.
 #'
-#' This function can be run on numeric vectors with missing `NA` values. `NA`
-#'   values in `x` are excluded from processing and restored in the returned
-#'   vector.
+#' This function will pass through any missing `NA` values in the input vector
+#'   `x`. `NA` values in `x` are excluded from processing and restored in the
+#'   returned vector, but not replaced with the local median value.
 #'
 #' A high `t0` threshold makes the outlier filter more forgiving, a low one
 #'   will declare more points to be outliers. `t0 = 3` (the *default*)
@@ -91,19 +91,21 @@ replace_outliers <- function(
     end_idx <- pmin(n, seq_len(n) + width)
 
     ## vectorised median & MAD
-    x0 <- vapply(seq_len(n), \(i) {
-        median(x[start_idx[i]:end_idx[i]])
+    local_median <- vapply(seq_len(n), \(i) {
+        # median(x[start_idx[i]:end_idx[i]]) ## inclusive of x[i]
+        median(x[setdiff(start_idx[i]:end_idx[i], i)]) ## exclusive of x[i]
     }, numeric(1))
 
-    S0 <- L * vapply(seq_len(n), \(i) {
-        median(abs(x[start_idx[i]:end_idx[i]] - x0[i]))
+    local_outlier <- L * vapply(seq_len(n), \(i) {
+        # median(abs(x[start_idx[i]:end_idx[i]] - local_median[i]))
+        median(abs(x[setdiff(start_idx[i]:end_idx[i], i)] - local_median[i]))
     }, numeric(1))
 
     ## logical outlier positions
-    is_outlier <- abs(x - x0) > t0 * S0
+    is_outlier <- abs(x - local_median) > t0 * local_outlier
     ## fill outliers with median or NA
     if (method) {
-        y[is_outlier] <- x0[is_outlier]
+        y[is_outlier] <- local_median[is_outlier]
     } else {
         y[is_outlier] <- NA_real_
     }
@@ -116,7 +118,6 @@ replace_outliers <- function(
 
     return(result)
 }
-
 
 
 
@@ -138,6 +139,7 @@ replace_outliers <- function(
 #'   input vector `x` with `NA` values restored to their original positions.
 #'
 #' @examples
+#' \dontrun{
 #' x <- c(1, NA, 3, NA, 5)
 #' na_info <- preserve_na(x)
 #' ## process with a function that would normally fail on NA
@@ -151,6 +153,7 @@ replace_outliers <- function(
 #' y <- tolower(na_info$x_valid)
 #' result <- restore_na(y, na_info)
 #' result
+#' }
 #'
 #' @keywords internal
 preserve_na <- function(x) {
