@@ -122,7 +122,10 @@ read_tymewear.live <- function(file_path, ...) {
         ) |>
         ## force type to numeric
         dplyr::mutate(
-            dplyr::across(dplyr::everything(), \(.x) as.numeric(.x))
+            dplyr::across(dplyr::everything(), \(.x) as.numeric(.x)),
+            ## correct inflated magnitude ventilatory values
+            dplyr::across("br", \(.x) .x / 10),
+            dplyr::across("vt", \(.x) .x / 100),
         ) |>
         suppressWarnings() |>
         ## drops rows after/including the first row with all NA
