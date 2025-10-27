@@ -38,14 +38,14 @@ A \link[ggplot2:ggplot2-package]{ggplot2} theme for display.
 \details{
 \itemize{
 \item \code{axis.title = element_text(face = "bold")} by default. Modify to \emph{"plain"}.
-\item \code{theme_sub_panel(grid.major, grid.major)} set to blank. Modify to
-\code{grid.major = element_line(colour = "black")} for visible gridlines.
-\item \verb{legend.position = "top")} by default. Modify \code{position = "none"} to
-remove legend entirely.
-\item \code{border = "partial"} uses \code{panel.border <- element_blank()} and
-\code{axis.line <- element_line()}.
-\item \code{border = "full"} uses \verb{panel.border <- element_rect(colour = "black",}
-\verb{linewidth = 1)} and \code{axis.line <- element_line()}.
+\item \code{panel.grid.major} & \code{panel.grid.major} set to blank. Modify to
+\verb{= element_line()} for visible grid lines.
+\item \code{legend.position = "top"} by default. Modify \code{"none"} to remove legend
+entirely.
+\item \code{border = "partial"} uses \code{panel.border = element_blank()} and
+\code{axis.line = element_line()}.
+\item \code{border = "full"} uses \verb{panel.border = element_rect(colour = "black",}
+\verb{linewidth = 1)} and \code{axis.line = element_line()}.
 \item \code{base_family = "sans"} by default. \code{"Merriweather Sans"} is a nice
 alternative font which can be installed from
 \url{https://fonts.google.com/specimen/Merriweather+Sans}.
@@ -58,9 +58,9 @@ library(ggplot2)
 ## set theme for the current script
 theme_set(theme_epl())
 
-data <- read_tymewear(example_epl("tymewear_live"))$data
-
-ggplot(data) +
+## plot example data
+read_tymewear(example_epl("tymewear_live"))$data |>
+    ggplot() +
     aes(x = time) +
     scale_colour_epl(name = NULL) +
     ylab("Ventilation Measures") +

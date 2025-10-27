@@ -4,6 +4,8 @@
 #' absolute deviation (MAD), and replaces with `NA` or the local median value.
 #'
 #' @param x A numeric vector.
+#' @param width An integer defining the sample window in which to detect local
+#'   outliers. Where `window = -width < idx < width`.
 #' @param method A character string indicating how to handle replacement
 #'   (see *Details* for more on each method):
 #'   \describe{
@@ -11,8 +13,6 @@
 #'      centred window defined by either `width` (the default).}
 #'      \item{`"NA"`}{Replaces outliers with `NA`.}
 #'   }
-#' @param width An integer defining the sample window in which to detect local
-#'   outliers. Where `window = -width < idx < width`.
 #' @param t0 An integer for the local outlier threshold. Default `t0 = 3`
 #'   (Pearson's rule; analogous to 3σ rule).
 #'
@@ -56,14 +56,13 @@
 #' @export
 replace_outliers <- function(
         x,
-        method = c("median", "NA"),
         width,
+        method = c("median", "NA"),
         t0 = 3
 ) {
+    validate_numeric(x)
     method <- match.arg(method)
     method <- method == "median" ## into logical
-
-    validate_numeric(x)
     validate_numeric(
         width, 1, c(1, Inf), TRUE, TRUE, msg = "one-element positive"
     )

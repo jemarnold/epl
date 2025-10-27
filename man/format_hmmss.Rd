@@ -27,7 +27,10 @@ x = 0:120
 y = sin(2 * pi * x / 15) + rnorm(length(x), 0, 0.2)
 ggplot(data.frame(x, y)) +
     aes(x = x, y = y) +
-    scale_x_continuous(breaks = breaks_timespan(), labels = format_hmmss) +
+    scale_x_continuous(
+        breaks = breaks_timespan(),
+        labels = format_hmmss
+    ) +
     geom_line()
 }
 

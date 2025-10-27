@@ -4,10 +4,13 @@
 \alias{replace_outliers}
 \title{Replace Local Outliers}
 \usage{
-replace_outliers(x, method = c("median", "NA"), width, t0 = 3)
+replace_outliers(x, width, method = c("median", "NA"), t0 = 3)
 }
 \arguments{
 \item{x}{A numeric vector.}
+
+\item{width}{An integer defining the sample window in which to detect local
+outliers. Where \verb{window = -width < idx < width}.}
 
 \item{method}{A character string indicating how to handle replacement
 (see \emph{Details} for more on each method):
@@ -16,9 +19,6 @@ replace_outliers(x, method = c("median", "NA"), width, t0 = 3)
 centred window defined by either \code{width} (the default).}
 \item{\code{"NA"}}{Replaces outliers with \code{NA}.}
 }}
-
-\item{width}{An integer defining the sample window in which to detect local
-outliers. Where \verb{window = -width < idx < width}.}
 
 \item{t0}{An integer for the local outlier threshold. Default \code{t0 = 3}
 (Pearson's rule; analogous to 3σ rule).}

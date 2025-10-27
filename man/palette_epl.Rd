@@ -4,10 +4,10 @@
 \alias{palette_epl}
 \title{Custom EPL colour palette}
 \usage{
-palette_epl(call = NULL)
+palette_epl(n = NULL)
 }
 \arguments{
-\item{call}{A character or numeric vector specifying either the name or the
+\item{n}{A character or numeric vector specifying either the name or the
 number in order of colours to return.}
 }
 \value{

@@ -13,17 +13,17 @@
 #' @details
 #' - `axis.title = element_text(face = "bold")` by default. Modify to *"plain"*.
 #'
-#' - `theme_sub_panel(grid.major, grid.major)` set to blank. Modify to
-#'   `grid.major = element_line(colour = "black")` for visible gridlines.
+#' - `panel.grid.major` & `panel.grid.major` set to blank. Modify to
+#'   `= element_line()` for visible grid lines.
 #'
-#' - `legend.position = "top")` by default. Modify `position = "none"` to
-#'   remove legend entirely.
+#' - `legend.position = "top"` by default. Modify `"none"` to remove legend
+#'   entirely.
 #'
-#' - `border = "partial"` uses `panel.border <- element_blank()` and
-#'   `axis.line <- element_line()`.
+#' - `border = "partial"` uses `panel.border = element_blank()` and
+#'   `axis.line = element_line()`.
 #'
-#' - `border = "full"` uses `panel.border <- element_rect(colour = "black",`
-#'   `linewidth = 1)` and `axis.line <- element_line()`.
+#' - `border = "full"` uses `panel.border = element_rect(colour = "black",`
+#'   `linewidth = 1)` and `axis.line = element_line()`.
 #'
 #' - `base_family = "sans"` by default. `"Merriweather Sans"` is a nice
 #'   alternative font which can be installed from
@@ -40,9 +40,9 @@
 #' ## set theme for the current script
 #' theme_set(theme_epl())
 #'
-#' data <- read_tymewear(example_epl("tymewear_live"))$data
-#'
-#' ggplot(data) +
+#' ## plot example data
+#' read_tymewear(example_epl("tymewear_live"))$data |>
+#'     ggplot() +
 #'     aes(x = time) +
 #'     scale_colour_epl(name = NULL) +
 #'     ylab("Ventilation Measures") +
@@ -112,7 +112,7 @@ theme_epl <- function(
 
 #' Custom EPL colour palette
 #'
-#' @param call A character or numeric vector specifying either the name or the
+#' @param n A character or numeric vector specifying either the name or the
 #'   number in order of colours to return.
 #'
 #' @return Named or unnamed character vector of hex colours.
@@ -127,7 +127,7 @@ theme_epl <- function(
 #' }
 #'
 #' @export
-palette_epl <- function(call = NULL) {
+palette_epl <- function(n = NULL) {
     colours_epl <- c(
         `light blue`  = "#0080ff",      ## "VL"
         `dark red`    = "#ba2630",      ## "FCR"
@@ -139,20 +139,20 @@ palette_epl <- function(call = NULL) {
         `green`       = "#42B540FF",    ## "DL"
         `purple`      = "#9f79ee",      ## "RF"
         `brown`       = "#8b4726",      ## "PS"
-        `red`         = "#ED0000FF",    ## "O2Hb"
-        `blue`        = "#0000ff")      ## "HHb"
+        `blue`        = "#0000ff",      ## "HHb"
+        `red`         = "#ED0000FF")    ## "O2Hb"
 
-    if (is.null(call)) {
+    if (is.null(n)) {
         return(unname(colours_epl))
     }
-    if (is.character(call)) {
-        return(colours_epl[call])
+    if (is.character(n)) {
+        return(colours_epl[n])
     }
-    if (is.numeric(call) && call <= length(colours_epl)) {
-        return(unname(colours_epl[seq_len(call)]))
-    } else if (is.numeric(call)) {
+    if (is.numeric(n) && n <= length(colours_epl)) {
+        return(unname(colours_epl[seq_len(n)]))
+    } else if (is.numeric(n)) {
         ## interpolate if more colours needed, but this probably won't look good!
-        return(grDevices::colorRampPalette(colours_epl)(call))
+        return(grDevices::colorRampPalette(colours_epl)(n))
     }
 }
 
@@ -298,7 +298,10 @@ breaks_timespan <- function(
 #' y = sin(2 * pi * x / 15) + rnorm(length(x), 0, 0.2)
 #' ggplot(data.frame(x, y)) +
 #'     aes(x = x, y = y) +
-#'     scale_x_continuous(breaks = breaks_timespan(), labels = format_hmmss) +
+#'     scale_x_continuous(
+#'         breaks = breaks_timespan(),
+#'         labels = format_hmmss
+#'     ) +
 #'     geom_line()
 #' }
 #'

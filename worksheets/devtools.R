@@ -1,9 +1,9 @@
 ## TODO
-- readme for read_tymelive & read_parvo
+DONE - readme for read_tymelive & read_parvo
 - testthat for helper functions
-- testthat for read_tymewear
-- testthat for read_parvo
-- -- details$name works with first & last / first only / last only
+- testthat for read_tymewear.post
+DONE - testthat for read_parvo
+DONE - -- details$name works with first & last / first only / last only
 
 ## Building R packages with devtools and usethis | RStudio ================
 ## https://www.youtube.com/watch?v=EpTkT6Rkgbs
@@ -21,78 +21,89 @@ library(devtools) ## calls library(usethis)
 
 1.
 usethis::create_package()
-or
-1. create new working directory for R package
+or create new working directory for R package
 - delete namespace, build from scratch
 
 2.
-usethis::use_r("fun_name")
-- create minimal R function
-
-3.
-devtools::load_all()
-- load all imported & exported functions to test
-
-4. insert roxygen2 comment (ctrl+alt+shift+R)
-- @title @description @param @details @return @export @examples
-- @importFrom (specific functions) @import (whole package)
-
-5.
-usethis::use_package_doc()
-usethis::use_package("ggplot2")
-usethis::use_import_from("rlang", "check_installed")
-usethis::use_tidy_description() ## to format DESCRIPTION
-usethis::
-- add external package as dependency
- ## @import rlang tibble dplyr tidyr lubridate
-usethis::use_version()
-
-6.
-devtools::document() ## ctrl+shift+d
-
-7.
-devtools::install() ## ctrl+shift+b
-
-8.
-devtools::check()
-- check early & often
-usethis::use_air() ## for external formatting
-
-9.
-devtools::build_readme()
-devtools::build_vignettes() ## devtools::clean_vignettes()
-- Build vignettes if any
-
-10.
 usethis::use_git()
 usethis::usegithub()
 - happygitwithr.com by Jenny Bryan
 - committ early & often
 
-11.
+3.
 usethis::use_mit_license()
 
-12.
-usethis::use_test("theme_epl")
+4.
+usethis::use_r("fun_name")
+- create minimal R function
+
+5.
+devtools::load_all() ## ctrl+shift+l
+- load all imported & exported functions to test
+
+6. insert roxygen2 comment (ctrl+alt+shift+R)
+@title @description @param @details @return @seealso @examples @importFrom @export
+@importFrom (specific functions) @import (whole package)
+
+7.
+usethis::use_air() ## for external formatting
+
+
+8.
+usethis::use_package_doc()
+usethis::use_package("ggplot2")
+- add external package as dependency
+usethis::use_import_from("rlang", "check_installed")
+usethis::use_tidy_description() ## to format DESCRIPTION
+
+9.
+devtools::document() ## ctrl+shift+d
+
+10.
+devtools::install() ## ctrl+shift+b
+
+11.
+usethis::use_test()
 - for open file
+- or
+usethis::use_test("theme_epl")
+
+12.
 devtools::load_all() ## ctrl+shift+l then  for all function tests
 devtools::test()
 devtools::check() ## will run tests
+- check early & often
 
 13.
+usethis::use_version("patch")
+usethis::use_dev_version()
+usethis::use_news_md()
+- <add description>
+
+
+14.
+devtools::build_readme()
+- Package description & basic use overview
+
+15.
+usethis::use_vignette("Replacing Outliers")
+devtools::build_vignettes() ## Build vignettes if any
+devtools::clean_vignettes()
+
+16.
 usethis::use_github_action("pkgdown")
 usethis::use_pkgdown_github_pages()
 - NEED TO REMOVE `docs` FROM GITIGNORE
 devtools::build_site() ## locally build
-pkgdown::clean_site() to remove pkgdown site
+pkgdown::clean_site() ## to remove pkgdown site
 
-14.
-remotes::install_github("jemarnold/mnirs")
+17.
+remotes::install_github("jemarnold/epl") ## install from github
 
 
-## Claude.ai Pre-release checklist
+## Claude.ai Pre-release checklist ===============================
 Essential:
-    
+
 * Version number in DESCRIPTION (start with 0.1.0 for initial release)
 * LICENSE file (MIT or GPL-3 are common for academic work)
 * All functions documented with roxygen2 comments
@@ -103,7 +114,7 @@ Essential:
 * Add a NEWS.md to track changes between versions
 
 Recommended:
-    
+
 * Function examples in documentation that actually run
 * At least basic unit tests (using testthat)
 * .Rbuildignore to exclude development files
@@ -127,14 +138,14 @@ git push -u origin dev
 ```
 
 Your workflow:
-    
+
 * Make all changes on dev branch
 * Push dev to remote after each work session
 * Both your systems pull from dev
 * When ready for public release: merge dev → main, increment version, push
 
 Installation for colleagues:
-    
+
 ```{r}
 # From main (stable)
 remotes::install_github("username/packagename")
@@ -144,7 +155,7 @@ remotes::install_github("username/packagename", ref = "dev")
 ```
 
 Version numbering:
-    
+
 * Development: 0.1.0.9000 (add .9000 suffix on dev branch)
 * Public releases: 0.1.0, 0.1.1 (bug fixes), 0.2.0 (new features)
 
