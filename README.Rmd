@@ -6,10 +6,10 @@ output: github_document
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  fig.path = "man/figures/README-",
-  out.width = "100%",
+    collapse = TRUE,
+    comment = "#>",
+    fig.path = "man/figures/README-",
+    out.width = "100%",
     dpi = 300
 )
 ```
@@ -37,18 +37,40 @@ remotes::install_github("jemarnold/epl")
 
 ## Usage
 
+#### `example_epl()`
+
+This helper function can be used to retrieve example data files included in {epl} to test processing functions.
+
+```{r}
+#| error: TRUE
+library(tidyr, warn.conflicts = FALSE)
+library(dplyr, warn.conflicts = FALSE) ## for data wrangling
+library(ggplot2) ## for plotting
+library(epl) ## load {epl} package
+
+## set the script default {ggplot2} display theme (see below for details)
+theme_set(theme_epl())
+
+## calling `example_epl()` will return a list of all included example files
+example_epl()
+
+## partial matching will error if matches multiple
+example_epl("tymewear")
+
+## calling a specific file by name will return the file path to that file
+## partial string matching works for uniquely identifiable file names
+example_epl("tymewear_live")
+```
+
 ### `read_tymewear()`
 
 This function will read *"Live Processed CSV"* or *"Post Processed CSV"* files exported from *Tymewear VitalPro* and return a list of two data frames with recorded data and file details.
 
-`tyme$data` contains the recorded raw data samples for breathing rate, tidal volume, and ventilation: `c("br", "vt", "ve")`, with time in seconds and timestamps in `datetime` format.
+-   `tyme$data` contains the recorded raw data samples for breathing rate, tidal volume, and ventilation: `c("br", "vt", "ve")`, with time in seconds and timestamps in `datetime` format.
 
-`tyme$details` contains the file details & metadata, including `c("gender", "weight", "date", "app-start-time")`.
+-   `tyme$details` contains the file details & metadata, including `c("gender", "weight", "date", "app-start-time")`.
 
 ```{r}
-## load {epl} package
-library(epl)
-
 ## specify the file path via any number of methods
 ## this gives an example format
 file_path <- file.path("root_project_folder", "data_folder", "my_file.csv")
@@ -66,13 +88,14 @@ tymelive
 
 This function will read *.CSV* or *.xlsx* (but not *.XLS*) files exported by *Parvo Medics TrueOne 2400* and return a list of three data frames with recorded data, file details, and events.
 
-`parvo$data` contains the recorded raw data samples for exported data channels (e.g. `c("VO2", "VCO2", "RR", "Vt")`) and calculated metabolic values (e.g. `c("O2kJ", "O2kcal", "Paer", "METS")`; see `?read_parvo` for details on calculated values).
+-   `parvo$data` contains the recorded raw data samples for exported data channels (e.g. `c("VO2", "VCO2", "RR", "Vt")`) and calculated metabolic values (e.g. `c("O2kJ", "O2kcal", "Paer", "METS")`; see `?read_parvo` for details on calculated values).
 
-`parvo$details` contains the file details & metadata, including `c("Date", "Name", "Sex", "Age")` (all metric values).
+-   `parvo$details` contains the file details & metadata, including `c("Date", "Name", "Sex", "Age")` (all metric values).
 
-`parvo$events` contains any manually entered events with `"TIME"` in seconds and event descriptions.
+-   `parvo$events` contains any manually entered events with `"TIME"` in seconds and event descriptions.
 
 ```{r}
+## example files are available by calling `example_epl()`
 file_path <- example_epl("parvo_binned")
 
 parvo <- read_parvo(file_path)
@@ -86,37 +109,117 @@ parvo
 read_parvo(file_path, add_timestamp = TRUE)$data
 ```
 
-### Helper Functions
+### `replace_outliers()`
+
+This function can detect and replace local outliers in vector data with either `NA` or the local median value, within a window defined by `width`.
+
+`width = 7` (sample window = `-7 < idx < 7`) seems suitable for breath-by-breath ventilatory data, however this can be modified depending on your data and to suit your desired response signal.
+
+See `?replace_outliers` for more information.
+
+```{r}
+
+tyme_data <- tymelive$data
+## filter breathing rate vector data for local outliers
+vt_filtered <- replace_outliers(tyme_data$vt, width = 7, method = "median")
+
+## plot raw signal and highlight outliers (see below for custom ggplot2 functions)
+ggplot(tyme_data) +
+    aes(x = time, y = vt) +
+    ylab("Tidal Volume (L)") +
+    scale_x_continuous(
+        name = "Time (mm:ss)",
+        breaks = breaks_timespan(),
+        labels = format_hmmss
+    ) +
+    scale_colour_epl() +
+    geom_line(aes(colour = "BR")) +
+    geom_point(
+        data = slice(tyme_data, which(vt_filtered != vt)),
+        aes(y = vt, colour = "outliers"))
+
+## to replace outliers from all channels in a data frame
+tyme_clean <- tyme_data |> 
+    mutate(
+        across(c(br, vt, ve), \(.x) replace_outliers(.x, 7))
+    )
+
+## check relative (%) effect of removing outliers on signal SD
+1 - sd(tyme_clean$vt) / sd(tyme_data$vt)
+
+## and on sample noise
+1 - mean(abs(diff(tyme_clean$vt))) / mean(abs(diff(tyme_data$vt)))
+
+```
+
+### `theme_epl()` & custom `{ggplot2}` plotting functions
+
+This package includes a clean plot template and colour palette for `{ggplot2}`, the data visualisation engine of choice in R. We have already seen the basics of what it looks like.
+
+The key function is `theme_epl()`, which can be called at the top of a script with `theme_set(theme_epl())` (as we have done at the top of this page) to set our plot defaults. Or it can be called within an individual plot, as below. See `?theme_epl` for details.
+
+```{r}
+parvo_data <- parvo$data
+
+## explore what each setting does to the aesthetics of the plot
+ggplot(parvo_data) +
+    aes(x = TIME) +
+    coord_cartesian(ylim = c(0, NA)) + ## set plot x- & y-axis limits
+    theme(
+        panel.grid.major.y = element_line() ## modify the current theme
+    ) +
+    scale_x_continuous( ## parameters for the x-axis
+        name = "Time (mm:ss)",
+        breaks = breaks_timespan(), ## pretty time x-axis formatting
+        labels = format_hmmss ## pretty time x-axis formatting (see below)
+    ) +
+    scale_y_continuous( ## parameters for the y-axis
+        name = "VO2  |  VCO2 (L/min)",
+        expand = expansion(mult = 0) ## adjust space above/below max/min
+    ) +
+    scale_colour_manual( ## set the colour mapping
+        name = NULL,
+        aesthetics = c("colour", "fill"), ## for both colour & fill
+        values = setNames(palette_epl()[c(6, 5)], c("VO2", "VCO2")), ## set custom colours (see below)
+    ) +
+    guides(
+        colour = guide_legend(override.aes = list(alpha = 1)) ## modify the legend keys)
+    ) +
+    geom_area(aes(y = VO2, colour = "VO2", fill = "VO2"), 
+              alpha = 0.1, key_glyph = "path") +
+    geom_line(aes(y = VCO2, colour = "VCO2"))
+```
+
+`palette_epl()` includes some nice colours which can be called individually with `scale_colour_manual(values = palette_epl()[1:2])`, or as a default palette built into `scale_colour_epl()` (used in the two plots above). See `?scale_colour_epl` for more options.
+
+```{r}
+scales::show_col(palette_epl()) ## visualise the colour palette
+```
+
+Time values on the x-axis can be displayed in *"h:mm:ss"* units with `format_hmmss()`, and breaks set to pretty time-ish values (e.g. 60-second or 5-minute (300 sec) increments) with `breaks_timespan()`, as used in the plots above.
+
+### `filter_data()`
 
 `<under development>`
 
-#### `example_epl()`
+### `detect_peaks()`
 
-This function can be used to retrieve example files included in {epl} to test processing functions.
-
-```{r}
-#| error: TRUE 
-## calling `example_epl()` will return a list of all included example files
-example_epl()
-
-## partial matching will error if matches multiple
-example_epl("tymewear")
-
-## calling a specific file by name will return the file path to that file
-## partial string matching works for uniquely identifiable file names
-example_epl("tymewear_live")
-```
+`<under development>`
 
 ## To do
 
--   Update `read_tymewear()` method for *"tymepost*" export file type.
+- Create vignette for main package usage.
 
--   Add local outlier filtering for metabolic data.
+- Update EPL Parvo App.
 
--   Add mean peak value detection, i.e. for V̇O~2~peak.
+- Update `read_tymewear()` method for *"tymepost*" export file type.
 
--   Add digital filtering methods (e.g. Butterworth, smoothing spline, simple moving average).
+- Add mean peak value detection, i.e. for V̇O~2~peak.
 
--   Add template display theme for `ggplot2` plotting.
+- Add digital filtering methods (e.g. Butterworth, smoothing spline, simple moving average, binning).
 
--   Add 4-parameter monoexponential curve fitting via `nls()` self-starting functions.
+- Add 4-parameter monoexponential curve fitting via `nls()` self-starting functions.
+
+- ~~Add template display theme for `ggplot2` plotting.~~
+
+- ~~Add local outlier filtering for metabolic data.~~

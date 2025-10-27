@@ -1,3 +1,10 @@
+# epl 0.2.0
+
+* Create `replace_outliers()` to detect and replace local outliers with `NA` or the local median value.
+* Create `theme_epl()` and other `{ggplot2}` helper functions for pretty plotting.
+* Updated README for new functions
+* Updated `test_that` for new functions.
+
 # epl 0.1.0
 
 * Initial public commit of development version.
