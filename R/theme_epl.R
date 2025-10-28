@@ -1,4 +1,4 @@
-#' Custom `{epl}` ggplot2 theme
+#' Custom EPL ggplot2 theme
 #'
 #' A [ggplot2][ggplot2::ggplot2-package] theme for display.
 #'

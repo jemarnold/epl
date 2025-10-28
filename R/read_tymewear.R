@@ -19,8 +19,9 @@
 #' - `tymelive$details` contains the file metadata.
 #'
 #' @examples
-#' # retrieve example tymewear file
+#' ## retrieve example tymewear file
 #' file_path <- example_epl("tymewear_live")
+#'
 #' tyme <- read_tymewear(file_path)
 #' tyme
 #'
@@ -67,6 +68,8 @@ read_tymewear <- function(file_path, ...) {
 
 
 
+
+#' @rdname read_tymewear
 #' @export
 read_tymewear.live <- function(file_path, ...) {
     ## read csv ================================
@@ -85,8 +88,10 @@ read_tymewear.live <- function(file_path, ...) {
     ## extract file details/metadata at the top of the file
     details <- data_raw |>
         dplyr::slice(1:(header_row - 3)) |>
+        ## rename columns
+        dplyr::rename(parameter = 1, value = 2) |>
         ## drop pause_resume row which creates redundant columns
-        dplyr::filter(!grepl("pause_resume", ...1)) |>
+        dplyr::filter(!grepl("pause_resume", parameter)) |>
         ## drops empty columns
         dplyr::select(
             dplyr::where(\(.x) any(nzchar(.x) & !is.na(.x)))
@@ -98,7 +103,7 @@ read_tymewear.live <- function(file_path, ...) {
 
     ## pull start time from details and correct for local timezone
     start_dttm <- details |>
-        dplyr::filter(grepl("app-start-time", ...1, ignore.case = TRUE)) |>
+        dplyr::filter(grepl("app-start-time", parameter, ignore.case = TRUE)) |>
         dplyr::pull(2) |>
         as.numeric() |>
         lubridate::as_datetime(tz = "America/Vancouver")
@@ -159,6 +164,7 @@ read_tymewear.live <- function(file_path, ...) {
 
 
 
+#' @rdname read_tymewear
 #' @export
 read_tymewear.post <- function(file_path, ...) {
     cli::cli_abort(c(

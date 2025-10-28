@@ -2,9 +2,15 @@
 % Please edit documentation in R/read_tymewear.R
 \name{read_tymewear}
 \alias{read_tymewear}
+\alias{read_tymewear.live}
+\alias{read_tymewear.post}
 \title{Read Tymewear Exported CSV Data}
 \usage{
 read_tymewear(file_path, ...)
+
+\method{read_tymewear}{live}(file_path, ...)
+
+\method{read_tymewear}{post}(file_path, ...)
 }
 \arguments{
 \item{file_path}{The file path as a character string, including \emph{.csv}
@@ -31,8 +37,9 @@ top of the file for recognisable column data belonging to either
 resulting file.
 }
 \examples{
-# retrieve example tymewear file
+## retrieve example tymewear file
 file_path <- example_epl("tymewear_live")
+
 tyme <- read_tymewear(file_path)
 tyme
 

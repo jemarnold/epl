@@ -4,19 +4,17 @@
 \alias{read_parvo}
 \title{Read Parvo Exported CSV Data}
 \usage{
-read_parvo(file_path, time_column = "TIME", add_timestamp = FALSE)
+read_parvo(file_path, add_timestamp = FALSE, ...)
 }
 \arguments{
 \item{file_path}{The file path as a character string, including \emph{.csv} or
 \emph{.xlsx} file type.}
 
-\item{time_column}{A character string for the time column in the data table.
-Defaults to \code{time_column = "TIME"}. Used to detect the location of the
-data table.}
-
 \item{add_timestamp}{A logical to add a "timestamp" column to the data table
 with date-time values, useful for synchronisation with other recordings by
 time of day. Precise to ± 0.5 seconds.}
+
+\item{...}{Additional arguments (not currently used).}
 }
 \value{
 A list with three \link[tibble:tibble-package]{tibbles}.
@@ -66,8 +64,9 @@ mL/kg/min), calculated as \code{VO2kg / 3.5}.
 }
 }
 \examples{
-# retrieve example parvo file
+## retrieve example parvo file
 file_path <- example_epl("parvo_binned")
+
 parvo <- read_parvo(file_path, add_timestamp = TRUE)
 parvo
 

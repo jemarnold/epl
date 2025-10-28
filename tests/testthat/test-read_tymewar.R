@@ -40,6 +40,7 @@ test_that("read_tymewear.live() details has expected values", {
 
     # Columns & rows
     expect_equal(ncol(result), 2)
+    expect_equal(names(result), c("parameter", "value"))
     expect_true(nrow(result) > 0)
 
     # Values
@@ -70,19 +71,19 @@ test_that("read_tymewear.live() timestamps should match", {
     # result$details |> print(n=Inf)
 
     start_time <- result$details |>
-        dplyr::filter(grepl("app-start-time", ...1)) |>
+        dplyr::filter(grepl("app-start-time", parameter)) |>
         dplyr::pull(2) |>
         as.numeric() #|>
         # lubridate::as_datetime(tz = "America/Vancouver")
 
     end_time <- result$details |>
-        dplyr::filter(grepl("app-end-time", ...1)) |>
+        dplyr::filter(grepl("app-end-time", parameter)) |>
         dplyr::pull(2) |>
         as.numeric() #|>
         # lubridate::as_datetime(tz = "America/Vancouver")
 
     details_duration <- result$details |>
-        dplyr::filter(grepl("duration", ...1)) |>
+        dplyr::filter(grepl("duration", parameter)) |>
         dplyr::pull(2) |>
         lubridate::ms() |>
         as.numeric()

@@ -6,12 +6,10 @@
 #'
 #' @param file_path The file path as a character string, including *.csv* or
 #'   *.xlsx* file type.
-#' @param time_column A character string for the time column in the data table.
-#'   Defaults to `time_column = "TIME"`. Used to detect the location of the
-#'   data table.
 #' @param add_timestamp A logical to add a "timestamp" column to the data table
 #'   with date-time values, useful for synchronisation with other recordings by
 #'   time of day. Precise to ± 0.5 seconds.
+#' @param ... Additional arguments (not currently used).
 #'
 #' @details
 #' This function can only parse *.CSV* files exported directly from a Parvo
@@ -51,16 +49,17 @@
 #' - `parvo$events` contains manual event inputs.
 #'
 #' @examples
-#' # retrieve example parvo file
+#' ## retrieve example parvo file
 #' file_path <- example_epl("parvo_binned")
+#'
 #' parvo <- read_parvo(file_path, add_timestamp = TRUE)
 #' parvo
 #'
 #' @export
 read_parvo <- function(
         file_path, ## file_path <- example_epl("parvo_binned")
-        time_column = "TIME",
-        add_timestamp = FALSE
+        add_timestamp = FALSE,
+        ...
 ) {
     ## read file ===========================================
     ## validation: check file exists
@@ -111,8 +110,8 @@ read_parvo <- function(
                 })
         )
 
-    ## detect header row with time_column
-    header_row <- detect_header_row(data_clean, time_column, 100)
+    ## detect header row with "TIME"
+    header_row <- detect_header_row(data_clean, "TIME", 100)
 
     ## parvo_details =====================================
     ## strings to detect details
@@ -237,13 +236,11 @@ read_parvo <- function(
                 }
             }),
             ## convert `TIME` in "mm:ss" or "min" to seconds
-            dplyr::across(dplyr::all_of(time_column), \(.x) {
-                if (is.character(.x)) {
-                    as.numeric(lubridate::ms(.x))
-                } else {
-                    .x * 60
-                }
-            }),
+            TIME = if (is.character(TIME)) {
+                as.numeric(lubridate::ms(TIME))
+            } else {
+                TIME * 60
+            },
         ) |>
         ## drops rows after/including the first row with all NA
         drop_rows_after_first_na() |>
@@ -298,19 +295,17 @@ read_parvo <- function(
                 dplyr::where(is.numeric), \(.x) round(.x, 8)
             ),
         ) |>
-        ## drops rows where time_column is NA
-        tidyr::drop_na(dplyr::all_of(time_column))
+        ## drops rows where TIME is NA
+        tidyr::drop_na(TIME)
 
     ## events_data ============================================
     rows <- which(grepl("Events", data_clean[[1]]))
     rows <- ifelse(length(rows) > 0, rows, nrow(data_clean))
     events_data <- data_clean |>
-        dplyr::select(!!time_column := 1, "Events" = 2) |>
+        dplyr::select(TIME = 1, Events = 2) |>
         dplyr::slice(rows:nrow(data_clean)) |>
         dplyr::filter(dplyr::if_any(2, \(.x) .x != "")) |>
-        dplyr::mutate(
-            dplyr::across(dplyr::all_of(time_column), \(.x) as.numeric(.x) * 60)
-        )
+        dplyr::mutate(TIME = as.numeric(TIME) * 60)
 
     ## add timestamp for sync =====================
     if (add_timestamp) {
@@ -318,12 +313,9 @@ read_parvo <- function(
             parvo_details[["Date"]],
             tz = "America/Vancouver"
         )
-        parvo_data$timestamp <- start_dttm + parvo_data[[time_column]]
+        parvo_data$timestamp <- start_dttm + parvo_data$TIME
         parvo_data <- parvo_data |>
-            dplyr::relocate(
-                dplyr::any_of("timestamp"),
-                .after = dplyr::all_of(time_column)
-            )
+            dplyr::relocate(dplyr::any_of("timestamp"), .after = TIME)
     }
 
     ## return =====================================

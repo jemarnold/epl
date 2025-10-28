@@ -2,7 +2,7 @@
 % Please edit documentation in R/theme_epl.R
 \name{theme_epl}
 \alias{theme_epl}
-\title{Custom \code{{epl}} ggplot2 theme}
+\title{Custom EPL ggplot2 theme}
 \usage{
 theme_epl(
   base_size = 14,

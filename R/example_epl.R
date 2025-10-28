@@ -1,4 +1,4 @@
-#' Get path to `{epl}` example files
+#' Get path to EPL example files
 #'
 #' @param file Name of file as character string. If kept as `NULL`, returns a
 #'   vector of all available files.
@@ -9,11 +9,12 @@
 #' @examples
 #' ## lists all files
 #' example_epl()
+#'
 #' ## partial matching will error if matches multiple
 #' ## example_epl("tymewear")
-#> Error in `example_epl()`:
-#> ! Multiple files match "tymewear":
-#> ℹ Matching files: "tymewear_live.csv" and "tymewear_post.csv"
+#' #> Error in `example_epl()`:
+#' #> ! Multiple files match "tymewear":
+#' #> ℹ Matching files: "tymewear_live.csv" and "tymewear_post.csv"
 #'
 #' example_epl("tymewear_live")
 #'
