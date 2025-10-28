@@ -35,10 +35,12 @@ reference:
   contents:
   - read_parvo
   - read_tymewear
-- title: Clean data
+- title: Process data
   desc: |
     Clean, filter, and process data.
-  contents: replace_outliers
+  contents:
+  - replace_outliers
+  - find_peaks
 - title: Plotting
   desc: |
     Tools for pretty plotting.
@@ -50,4 +52,9 @@ reference:
   desc: |
     Useful functions for common tasks
   contents: example_epl
-
+- title: Data
+  desc: |
+    Example data files included in the package
+  contents:
+  - starts_with("parvo")
+  - starts_with("tymewear")

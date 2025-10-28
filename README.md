@@ -173,13 +173,45 @@ ggplot(tyme_data) +
 
 <img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
+### `filter_data()`
+
+`<under development>`
+
+### `find_peaks()`
+
+``` r
+ramp_data <- read_parvo(example_epl("parvo_ramp"))$data
+
+peak_data <- find_peaks(
+    ramp_data, 
+    x = "TIME",
+    y = "VO2", 
+    span = 30,
+    between = c(1500, 2000)
+)
+peak_data
+#> # A tibble: 1 × 25
+#>   samples  TIME    HR VO2kg   VO2  VCO2   RER    RR    Vt    VE VEVO2 VEVCO2
+#>     <int> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
+#> 1       1 1770.   222  49.9  3.65  4.18  1.14  46.7  2.88  110.  36.8   32.1
+#> # ℹ 13 more variables: FEO2 <dbl>, FECO2 <dbl>, FATmin <dbl>, CHOmin <dbl>,
+#> #   FatOx <dbl>, CarbOx <dbl>, O2kJ <dbl>, O2kcal <dbl>, O2work <dbl>,
+#> #   O2energy <dbl>, O2power <dbl>, O2pulse <dbl>, METS <dbl>
+
+VO2peak <- peak_data$VO2kg
+VO2peak
+#> [1] 49.94765
+```
+
 ### `theme_epl()` & custom `{ggplot2}` plotting functions
 
 ``` r
-parvo_data <- parvo$data
 
-ggplot(parvo_data) +
+ggplot(ramp_data) +
     aes(x = TIME) +
+    labs(title = expression(
+        Incremental~Ramp~and~dot(V)*O['2']~Verification~Assessment
+    )) +
     coord_cartesian(ylim = c(0, NA)) +
     theme(
         panel.grid.major.y = element_line()
@@ -190,7 +222,9 @@ ggplot(parvo_data) +
         labels = format_hmmss
     ) +
     scale_y_continuous(
-        name = expression(bold(dot(V)*O['2']~~'|'~~dot(V)*CO['2']~'('*L%.%min^'-1'*')')),
+        name = expression(bold(
+            dot(V)*O['2']~~'|'~~dot(V)*CO['2']~'('*L%.%min^'-1'*')'
+        )),
         expand = expansion(mult = 0)
     ) +
     scale_colour_manual(
@@ -205,24 +239,18 @@ ggplot(parvo_data) +
     ) +
     geom_area(aes(y = VO2, colour = "VO2", fill = "VO2"), 
               alpha = 0.1, key_glyph = "path") +
-    geom_line(aes(y = VCO2, colour = "VCO2"))
+    geom_line(aes(y = VCO2, colour = "VCO2")) +
+    geom_point(data = peak_data, aes(x = TIME, y = VO2),
+               size = 4, shape = 21, stroke = 1)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ``` r
 scales::show_col(palette_epl()) ## visualise the colour palette
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
-
-### `filter_data()`
-
-`<under development>`
-
-### `detect_peaks()`
-
-`<under development>`
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## To do
 

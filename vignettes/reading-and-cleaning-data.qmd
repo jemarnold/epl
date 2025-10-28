@@ -30,7 +30,7 @@ In this vignette we will learn:
 
 - To perform digital filtering of metabolic data `<under development 0.2.0>`.
 
-- To calculate peak values (e.g. V̇O<sub>2</sub>peak) `<under development 0.2.0>`.
+- To calculate peak values (e.g. V̇O~2~peak) `<under development 0.2.0>`.
 
 ::: {.callout-note}
 ### {epl} 0.2.0 internal release notes:
@@ -49,7 +49,6 @@ library(ggplot2) ## for plotting
 library(epl) ## this package
 
 ## set the script default {ggplot2} display theme (see below for details)
-
 theme_set(theme_epl())
 ```
 
@@ -71,18 +70,15 @@ file.path("~", "my_folder", "raw_data", "my_file.csv")
 #| results: 'hide'
 #| error: TRUE
 ## calling `example_epl()` will return a list of all included example files
-
 example_epl()
-#> [1] "parvo_binned.CSV"  "parvo_bxb.CSV"     "tymewear_live.csv"
-#> [4] "tymewear_post.csv"
+#> [1] "parvo_binned.CSV"  "parvo_bxb.CSV"     "parvo_ramp.CSV"
+#> [4] "tymewear_live.csv" "tymewear_post.csv"
 
 ## partial matching will error if matches multiple
-
 example_epl("parvo")
 
 ## calling a specific file by name will return the file path
 ## partial string matching works for uniquely identifiable file names
-
 file_path <- example_epl("parvo_binned")
 file_path
 #> [1] "C:/Program Files/R/R-4.5.1/library/epl/extdata/parvo_binned.csv"
@@ -102,17 +98,17 @@ The exported *.XSL* file format is obsolete and cannot be easily read into R. Th
 
 `read_parvo()` has two simple arguments:
 
-- `file_path` takes in the character string for our data file path, as we defined above.
+- `file_path`: takes in the character string for our data file path, as we defined above.
 
-- `add_timestamp` gives the option to add a timestamp (time of day) column in `datetime` format based on the file recording start time. The file start time is accurate to the nearest second (± 0.5 sec precision) **as long as the Parvo system time was accurate in the first place**. Which is not always true.
+- `add_timestamp`: gives the option to add a timestamp (time of day) column in `datetime` format based on the file recording start time. The file start time is accurate to the nearest second (± 0.5 sec precision) **as long as the Parvo system time was accurate in the first place**. Which is not always true.
 
 The output of this function is a list of three data frames:
 
-- `parvo$data` contains the recorded raw data samples for exported data channels (e.g. `c("VO2", "VCO2", "RR", "Vt")`) and calculated metabolic values (e.g. `c("O2kJ", "O2kcal", "Paer", "METS")`; see `?read_parvo` for details on calculated values).
+- `parvo$data`: contains the recorded raw data samples for exported data channels (e.g. `c("VO2", "VCO2", "RR", "Vt")`) and calculated metabolic values (e.g. `c("O2kJ", "O2kcal", "Paer", "METS")`; see `?read_parvo` for details on calculated values).
 
-- `parvo$details` contains the file details & metadata, including `c("Date", "Name", "Sex", "Age")` (metric SI units only).
+- `parvo$details`: contains the file details & metadata, including `c("Date", "Name", "Sex", "Age")` (metric SI units only).
 
-- `parvo$events` contains any manually entered events with time in seconds and event descriptions.
+- `parvo$events`: contains any manually entered events with time in seconds and event descriptions.
 
 ```{r}
 parvo <- read_parvo(file_path = file_path, add_timestamp = TRUE)
@@ -125,13 +121,13 @@ This function will read *"Live Processed CSV"* or *"Post Processed CSV"* files e
 
 `read_tymewear()` only has one argument:
 
-- `file_path` as above, the character string for our file path.
+- `file_path`: as above, the character string for our file path.
 
 The output of this function is a list of two data frames:
 
-- `tyme$data` contains the recorded raw data samples for breathing rate, tidal volume, and ventilation: `c("br", "vt", "ve")`, with time in seconds and timestamps in `datetime` format.
+- `tyme$data`: contains the recorded raw data samples for breathing rate, tidal volume, and ventilation: `c("br", "vt", "ve")`, with time in seconds and timestamps in `datetime` format.
 
-- `tyme$details` contains the file details & metadata, including `c("gender", "weight", "date", "app-start-time")`. It is in "long" format, whereas the parvo details are in "wide" format.
+- `tyme$details`: contains the file details & metadata, including `c("gender", "weight", "date", "app-start-time")`. It is in "long" format, whereas the parvo details are in "wide" format.
 
 ```{r}
 tymelive <- read_tymewear(example_epl("tymewear_live"))
@@ -144,15 +140,15 @@ tymelive
 
 This function can detect local outliers in vector data and replace them with either `NA` or the local median value.
 
-- `x` takes in a numeric vector to search along for local outliers.
+- `x`: takes in a numeric vector to search along for local outliers.
 
-- `width` defines the window around either side of the target observation `idx`. e.g., `width = 7` defines a window of `-7 < idx < 7` around the target observation.
+- `width`: defines the window around either side of the target observation `idx`. e.g., `width = 7` defines a window of `-7 < idx < 7` around the target observation.
 
 ::: {.callout-note}
 Empirically, `width = 7` seems suitable for breath-by-breath ventilatory data, however this can be modified depending on the data and the target response signal.
 :::
 
-- `method` defines how local outliers will be replaced; either *"median"* with the local median value (the default), or *"NA"* to remove the outlier and leave as a missing `NA` value.
+- `method`: defines how local outliers will be replaced; either *"median"* with the local median value (the default), or *"NA"* to remove the outlier and leave as a missing `NA` value.
 
 See `?replace_outliers` for more information.
 
@@ -160,12 +156,10 @@ See `?replace_outliers` for more information.
 tyme_data <- tymelive$data
 
 ## filter breathing rate vector data for local outliers
-
 vt_filtered <- replace_outliers(tyme_data$vt, width = 7, method = "median")
 
 ## plot raw signal and highlight outliers 
 ## (see below for details about plotting)
-
 ggplot(tyme_data) +
     aes(x = time, y = vt) +
     ylab("Tidal Volume (L)") +
@@ -182,18 +176,15 @@ ggplot(tyme_data) +
     )
 ## to replace outliers from all channels in a data frame
 ## using {tidyverse} {dplyr} grammar
-
 tyme_clean <- tyme_data |> 
     mutate(
         across(c(br, vt, ve), \(.x) replace_outliers(.x, 7))
     )
 
 ## check relative (%) effect of removing outliers on reduced signal SD
-
 1 - sd(tyme_clean$vt) / sd(tyme_data$vt)
 
 ## and reduced sample noise
-
 1 - mean(abs(diff(tyme_clean$vt))) / mean(abs(diff(tyme_data$vt)))
 ```
 
@@ -201,9 +192,44 @@ tyme_clean <- tyme_data |>
 
 `<under development 0.2.0>`
 
-### `detect_peaks()`
+### `find_peaks()`
 
-`<under development 0.2.0>`
+This function is used to detect the peak average value across a certain time span, and return the means for all data columns from within the rows included in that time span. Most commonly, this will be used to find the e.g. 30-second V̇O~2~peak.
+
+- `data`: this function works on a data frame with at least an `x` and `y` column. It will take in a data frame, apply processing to all data channels specified, and return the processed data frame.
+
+- `x`: the name of the *"time"* column.
+
+- `y`: the name of the target value to detect peaks for, e.g. *"VO2"*.
+
+- `span`: the timespan (in units of `x`; i.e., in seconds) in which to calculate rolling local means, to find the peak value of `y`.
+
+::: {.callout-note}
+`span = 30` sec is the default most common timespan for calculating V̇O~2~peak.
+:::
+
+- `between`: can optionally specify a sub-range of `x` (time values) in which to look for a peak value.
+
+See `?find_peaks` for details.
+
+```{r}
+## read data from example ramp test
+ramp_data <- read_parvo(example_epl("parvo_ramp"))$data
+
+peak_data <- find_peaks(
+    ramp_data, 
+    x = "TIME", ## assign `x` and `y` values
+    y = "VO2", 
+    span = 30, ## find peak mean values within a 30-sec timespan
+    between = c(1500, 2000) ## restrict the range in which to look for peaks
+)
+peak_data
+
+## retrieve VO2peak value in ml/kg/min
+VO2peak <- peak_data$VO2kg
+VO2peak
+```
+
 
 ## Plotting
 
@@ -224,12 +250,12 @@ The key function is `theme_epl()`, which can be called at the top of a script wi
 These settings are usually fine to leave as default. See `?theme_epl` for details.
 
 ```{r}
-parvo_data <- parvo$data
-
 ## explore what each setting does to the aesthetics of the plot
-
-ggplot(parvo_data) +
+ggplot(ramp_data) +
     aes(x = TIME) +
+    labs(title = expression( ## use `expression` for special symbols
+        Incremental~Ramp~and~dot(V)*O['2']~Verification~Assessment
+    )) +
     coord_cartesian(ylim = c(0, NA)) + ## set plot x- & y-axis limits
     scale_x_continuous( ## parameters for the x-axis
         name = "Time (mm:ss)",
@@ -237,13 +263,16 @@ ggplot(parvo_data) +
         labels = format_hmmss ## pretty time x-axis formatting (see below)
     ) +
     scale_y_continuous( ## parameters for the y-axis
-        name = expression(bold(dot(V)*O['2']~~'|'~~dot(V)*CO['2']~'('*L%.%min^'-1'*')')),
+        name = expression(bold( ## use `expression` for special symbols
+            dot(V)*O['2']~~'|'~~dot(V)*CO['2']~'('*L%.%min^'-1'*')'
+        )),
         expand = expansion(mult = 0) ## adjust space above/below max/min
     ) +
     scale_colour_manual( ## set the colour mapping
         name = NULL,
         aesthetics = c("colour", "fill"), ## for both colour & fill
-        values = setNames(palette_epl()[c(6, 5)], c("VO2", "VCO2")), ## set custom colours (see below)
+        ## set custom colours (see below)
+        values = setNames(palette_epl()[c(6, 5)], c("VO2", "VCO2")), 
     ) +
     guides(
         colour = guide_legend(override.aes = list(
@@ -252,7 +281,9 @@ ggplot(parvo_data) +
     ) +
     geom_area(aes(y = VO2, colour = "VO2", fill = "VO2"), 
               alpha = 0.1, key_glyph = "path") +
-    geom_line(aes(y = VCO2, colour = "VCO2"))
+    geom_line(aes(y = VCO2, colour = "VCO2")) +
+    geom_point(data = peak_data, aes(x = TIME, y = VO2),
+               size = 4, shape = 21, stroke = 1)
 ```
 
 ### `palette_epl()`
@@ -263,7 +294,6 @@ See `?scale_colour_epl` for more options.
 
 ```{r}
 ## visualise the colour palette
-
 scales::show_col(palette_epl())
 ```
 
