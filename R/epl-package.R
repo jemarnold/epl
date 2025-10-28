@@ -3,6 +3,7 @@
 
 ## usethis namespace: start
 #' @importFrom cli cli_abort
+#' @importFrom cli cli_warn
 #' @importFrom janitor row_to_names
 #' @importFrom readxl read_excel
 #' @importFrom rlang !!

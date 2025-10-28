@@ -53,7 +53,7 @@ usethis::use_air() ## for external formatting
 usethis::use_package_doc()
 usethis::use_package("scales", type = "Suggests")
 - add external package as dependency
-usethis::use_import_from("rlang", "check_installed")
+usethis::use_import_from("cli", "cli_warn")
 usethis::use_tidy_description() ## to format DESCRIPTION
 
 9.
