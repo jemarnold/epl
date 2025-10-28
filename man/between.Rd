@@ -2,9 +2,9 @@
 % Please edit documentation in R/helpers.R
 \name{between}
 \alias{between}
-\title{Detect if values fall within a range}
+\title{Detect if numeric values fall between a range}
 \usage{
-between(x, left, right, inclusive = TRUE)
+between(x, left, right, inclusive = c("left", "right"))
 }
 \arguments{
 \item{x}{A numeric vector.}
@@ -12,18 +12,19 @@ between(x, left, right, inclusive = TRUE)
 \item{left, right}{Numeric boundary values. Both \code{left} and \code{right} are
 recycled to the size of \code{x}.}
 
-\item{inclusive}{A logical to specify that \code{left} and \code{right} boundary
-values should be accepted in the range (the default) or excluded if
-\code{FALSE}.}
+\item{inclusive}{A character vector to specify which of \code{left} and/or
+\code{right} boundary values should be included in the range, or both
+(the default), or excluded if \code{FALSE}.}
 }
 \value{
 A logical vector the same length as \code{x}.
 }
 \description{
-Vectorised inclusive or exclusive \code{x >= left} & \code{x <= right}
+Vectorised inclusive within \code{x >= left} & \code{x <= right}, or exclusive
+between \code{x > left} & \code{x < right}. Each side can be specified separately.
 }
 \details{
-\code{inclusive = FALSE} could be used to test for positive non-zero values:
+\code{inclusive = FALSE} can be used to test for positive non-zero values:
 \code{between(x, 0, Inf, inclusive = FALSE)}.
 }
 \seealso{

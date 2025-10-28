@@ -26,7 +26,7 @@ validate_numeric <- function(
         arg,
         elements = Inf,
         range = NULL,
-        inclusive = TRUE,
+        inclusive = c("left", "right"),
         integer = FALSE,
         msg = ""
 ) {
@@ -136,19 +136,20 @@ drop_rows_after_first_na <- function(data) {
 
 
 
-#' Detect if values fall within a range
+#' Detect if numeric values fall between a range
 #'
-#' Vectorised inclusive or exclusive `x >= left` & `x <= right`
+#' Vectorised inclusive within `x >= left` & `x <= right`, or exclusive
+#' between `x > left` & `x < right`. Each side can be specified separately.
 #'
 #' @param x A numeric vector.
 #' @param left,right Numeric boundary values. Both `left` and `right` are
 #'   recycled to the size of `x`.
-#' @param inclusive A logical to specify that `left` and `right` boundary
-#'   values should be accepted in the range (the default) or excluded if
-#'   `FALSE`.
+#' @param inclusive A character vector to specify which of `left` and/or
+#'   `right` boundary values should be included in the range, or both
+#'   (the default), or excluded if `FALSE`.
 #'
 #' @details
-#' `inclusive = FALSE` could be used to test for positive non-zero values:
+#' `inclusive = FALSE` can be used to test for positive non-zero values:
 #'   `between(x, 0, Inf, inclusive = FALSE)`.
 #'
 #' @return A logical vector the same length as `x`.
@@ -156,10 +157,30 @@ drop_rows_after_first_na <- function(data) {
 #' @seealso [dplyr::between()]
 #'
 #' @keywords internal
-between <- function(x, left, right, inclusive = TRUE) {
-    if (inclusive) {
-        x >= left & x <= right
-    } else {
-        x > left & x < right
+between <- function(x, left, right, inclusive = c("left", "right")) {
+    validate_numeric(x)
+    validate_numeric(left, 1L, msg = "one-element")
+    validate_numeric(right, 1L, msg = "one-element")
+    inclusive <- match.arg(
+        as.character(inclusive),
+        choices = c("left", "right", "FALSE"),
+        several.ok = TRUE
+    )
+
+    if ("FALSE" %in% inclusive) {
+        return(x > left & x < right)
     }
+
+    left_compare <- if ("left" %in% inclusive) {
+        x >= left
+    } else {
+        x > left
+    }
+    right_compare <- if ("right" %in% inclusive) {
+        x <= right
+    } else {
+        x < right
+    }
+
+    return(left_compare & right_compare)
 }

@@ -64,14 +64,14 @@ replace_outliers <- function(
     method <- match.arg(method)
     method <- method == "median" ## into logical
     validate_numeric(
-        width, 1, c(1, Inf), TRUE, TRUE, msg = "one-element positive"
+        width, 1, c(1, Inf), integer = TRUE, msg = "one-element positive"
     )
     if (width >= ceiling(length(x)/2)) {
         cli::cli_abort(
             "{.arg width} must not be greater than half the length of {.arg x}."
         )
     }
-    validate_numeric(t0, 1, c(0, Inf), TRUE, TRUE, msg = "one-element positive")
+    validate_numeric(t0, 1, c(0, Inf), integer = TRUE, msg = "one-element positive")
 
     ## logical whether to handle NAs
     handle_na <- any(is.na(x))
