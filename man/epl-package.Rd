@@ -8,6 +8,13 @@
 \description{
 A repository of functions and scripts for common tasks for use by students in the UBC Environmental Physiology Laboratory.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://jemarnold.github.io/epl/}
+}
+
+}
 \author{
 \strong{Maintainer}: Jem Arnold \email{jem.arnold@ubc.ca}
 

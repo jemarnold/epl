@@ -1,0 +1,272 @@
+---
+title: "Reading and cleaning data"
+vignette: >
+    %\VignetteIndexEntry{reading-and-cleaning-data}
+    %\VignetteEngine{quarto::html}
+    %\VignetteEncoding{UTF-8}
+format:
+    html:
+        embed-resources: true
+        toc: true
+knitr:
+    opts_chunk:
+        collapse: true
+        comment: '#>'
+        dpi: 300
+        out.width: "100%"
+        # fig.width: 7
+        fig.align: "center"
+---
+
+Often the first common task we have to do is read our data from a file exported from one of our lab devices into R. This package has a few functions to make that task a bit easier.
+
+In this vignette we will learn:
+
+- To read files exported from *Parvo Medics TrueOne 2400* metabolic cart and *Tymewear Vital Pro* ventilation chest strap with `read_parvo()` and `read_tymewear()`, respectively.
+
+- To detect and replace local outlier values in metabolic data with `replace_outliers()`.
+
+- Plotting functions for pretty data visualision with `theme_epl()`, `palette_epl()`, and other `{ggplot2}` helper functions.
+
+- To perform digital filtering of metabolic data `<under development 0.2.0>`.
+
+- To calculate peak values (e.g. V̇O<sub>2</sub>peak) `<under development 0.2.0>`.
+
+::: {.callout-note}
+### {epl} 0.2.0 internal release notes:
+
+More functions will be added to this vignette as they are included in *{epl}*.
+:::
+
+First we will set up our R environment by calling the package libraries we will use.
+
+```{r}
+#| label: setup
+#| warning: false
+library(tidyr) ## for data wrangling
+library(dplyr) ## for data wrangling
+library(ggplot2) ## for plotting
+library(epl) ## this package
+
+## set the script default {ggplot2} display theme (see below for details)
+
+theme_set(theme_epl())
+```
+
+## Specify file path
+
+There are a few ways to point to our data file. If our data files and R script are in the same root folder (or Rstudio project folder), then we should be able to use an implicit file path, e.g.: `"./raw_data/my_file.csv"`.
+
+If the data file is elsewhere, we will need to define the full path explicitly, e.g.:
+
+```{r}
+file.path("~", "my_folder", "raw_data", "my_file.csv")
+```
+
+### `example_epl()`
+
+*{epl}* includes example data files which can be used to test the included functions:
+
+```{r}
+#| results: 'hide'
+#| error: TRUE
+## calling `example_epl()` will return a list of all included example files
+
+example_epl()
+#> [1] "parvo_binned.CSV"  "parvo_bxb.CSV"     "tymewear_live.csv"
+#> [4] "tymewear_post.csv"
+
+## partial matching will error if matches multiple
+
+example_epl("parvo")
+
+## calling a specific file by name will return the file path
+## partial string matching works for uniquely identifiable file names
+
+file_path <- example_epl("parvo_binned")
+file_path
+#> [1] "C:/Program Files/R/R-4.5.1/library/epl/extdata/parvo_binned.csv"
+```
+
+## Reading file data
+
+### `read_parvo()`
+
+This function will read *.CSV* or *.xlsx* (but not *.XLS*) files exported by *Parvo Medics TrueOne 2400* metabolic cart.
+
+::: {.callout-note}
+### `read_parvo()` won't work on exported *.XSL* data
+
+The exported *.XSL* file format is obsolete and cannot be easily read into R. These files will need to be re-saved as *.xlsx* before being read. We recommend exporting as *.CSV* for this reason.
+:::
+
+`read_parvo()` has two simple arguments:
+
+- `file_path` takes in the character string for our data file path, as we defined above.
+
+- `add_timestamp` gives the option to add a timestamp (time of day) column in `datetime` format based on the file recording start time. The file start time is accurate to the nearest second (± 0.5 sec precision) **as long as the Parvo system time was accurate in the first place**. Which is not always true.
+
+The output of this function is a list of three data frames:
+
+- `parvo$data` contains the recorded raw data samples for exported data channels (e.g. `c("VO2", "VCO2", "RR", "Vt")`) and calculated metabolic values (e.g. `c("O2kJ", "O2kcal", "Paer", "METS")`; see `?read_parvo` for details on calculated values).
+
+- `parvo$details` contains the file details & metadata, including `c("Date", "Name", "Sex", "Age")` (metric SI units only).
+
+- `parvo$events` contains any manually entered events with time in seconds and event descriptions.
+
+```{r}
+parvo <- read_parvo(file_path = file_path, add_timestamp = TRUE)
+parvo
+```
+
+### `read_tymewear()`
+
+This function will read *"Live Processed CSV"* or *"Post Processed CSV"* files exported from *Tymewear VitalPro* chest strap.
+
+`read_tymewear()` only has one argument:
+
+- `file_path` as above, the character string for our file path.
+
+The output of this function is a list of two data frames:
+
+- `tyme$data` contains the recorded raw data samples for breathing rate, tidal volume, and ventilation: `c("br", "vt", "ve")`, with time in seconds and timestamps in `datetime` format.
+
+- `tyme$details` contains the file details & metadata, including `c("gender", "weight", "date", "app-start-time")`. It is in "long" format, whereas the parvo details are in "wide" format.
+
+```{r}
+tymelive <- read_tymewear(example_epl("tymewear_live"))
+tymelive
+```
+
+## Clean and filter data
+
+### `replace_outliers()`
+
+This function can detect local outliers in vector data and replace them with either `NA` or the local median value.
+
+- `x` takes in a numeric vector to search along for local outliers.
+
+- `width` defines the window around either side of the target observation `idx`. e.g., `width = 7` defines a window of `-7 < idx < 7` around the target observation.
+
+::: {.callout-note}
+Empirically, `width = 7` seems suitable for breath-by-breath ventilatory data, however this can be modified depending on the data and the target response signal.
+:::
+
+- `method` defines how local outliers will be replaced; either *"median"* with the local median value (the default), or *"NA"* to remove the outlier and leave as a missing `NA` value.
+
+See `?replace_outliers` for more information.
+
+```{r}
+tyme_data <- tymelive$data
+
+## filter breathing rate vector data for local outliers
+
+vt_filtered <- replace_outliers(tyme_data$vt, width = 7, method = "median")
+
+## plot raw signal and highlight outliers 
+## (see below for details about plotting)
+
+ggplot(tyme_data) +
+    aes(x = time, y = vt) +
+    ylab("Tidal Volume (L)") +
+    scale_x_continuous(
+        name = "Time (mm:ss)",
+        breaks = breaks_timespan(),
+        labels = format_hmmss
+    ) +
+    scale_colour_epl() +
+    geom_line(aes(colour = "BR")) +
+    geom_point(
+        data = slice(tyme_data, which(vt_filtered != vt)),
+        aes(y = vt, colour = "outliers")
+    )
+## to replace outliers from all channels in a data frame
+## using {tidyverse} {dplyr} grammar
+
+tyme_clean <- tyme_data |> 
+    mutate(
+        across(c(br, vt, ve), \(.x) replace_outliers(.x, 7))
+    )
+
+## check relative (%) effect of removing outliers on reduced signal SD
+
+1 - sd(tyme_clean$vt) / sd(tyme_data$vt)
+
+## and reduced sample noise
+
+1 - mean(abs(diff(tyme_clean$vt))) / mean(abs(diff(tyme_data$vt)))
+```
+
+### `filter_data()`
+
+`<under development 0.2.0>`
+
+### `detect_peaks()`
+
+`<under development 0.2.0>`
+
+## Plotting
+
+### `theme_epl()`
+
+This package includes a clean plot template and colour palette for `{ggplot2}`, the data visualisation engine of choice in R. We have already seen the basics of what it looks like.
+
+The key function is `theme_epl()`, which can be called at the top of a script with `theme_set(theme_epl())` (as we have done at the top of this page) to set our plot defaults. Or it can be called within an individual plot, as below.
+
+`theme_epl()` has the following arguments, in addition to being able to take in `theme()` arguments for ggplot settings:
+
+- `base_size` is the numeric font size, defaults to `14`.
+
+- `base_family` is the font used, defaults to Arial *"sans"*. Another nice alternative font to install for use is "Merriweather Sans", available from [Google fonts](https://fonts.google.com/specimen/Merriweather+Sans).
+
+- `border` specifies either a *"partial"* (the default) or *"full"* border around the plot panel.
+
+These settings are usually fine to leave as default. See `?theme_epl` for details.
+
+```{r}
+parvo_data <- parvo$data
+
+## explore what each setting does to the aesthetics of the plot
+
+ggplot(parvo_data) +
+    aes(x = TIME) +
+    coord_cartesian(ylim = c(0, NA)) + ## set plot x- & y-axis limits
+    scale_x_continuous( ## parameters for the x-axis
+        name = "Time (mm:ss)",
+        breaks = breaks_timespan(), ## pretty time x-axis formatting
+        labels = format_hmmss ## pretty time x-axis formatting (see below)
+    ) +
+    scale_y_continuous( ## parameters for the y-axis
+        name = expression(bold(dot(V)*O['2']~~'|'~~dot(V)*CO['2']~'('*L%.%min^'-1'*')')),
+        expand = expansion(mult = 0) ## adjust space above/below max/min
+    ) +
+    scale_colour_manual( ## set the colour mapping
+        name = NULL,
+        aesthetics = c("colour", "fill"), ## for both colour & fill
+        values = setNames(palette_epl()[c(6, 5)], c("VO2", "VCO2")), ## set custom colours (see below)
+    ) +
+    guides(
+        colour = guide_legend(override.aes = list(
+            linewidth = 1, alpha = 1 ## modify the legend keys
+        ))
+    ) +
+    geom_area(aes(y = VO2, colour = "VO2", fill = "VO2"), 
+              alpha = 0.1, key_glyph = "path") +
+    geom_line(aes(y = VCO2, colour = "VCO2"))
+```
+
+### `palette_epl()`
+
+`palette_epl()` includes some nice colours which can be called individually - e.g.: `scale_colour_manual(values = palette_epl()[1:2])` - or as a default palette built into `scale_colour_epl()` (used in the two plots above). 
+
+See `?scale_colour_epl` for more options.
+
+```{r}
+## visualise the colour palette
+
+scales::show_col(palette_epl())
+```
+
+### Other `{ggplot2}` helper functions
+
+Time values on the x-axis can be displayed in *"h:mm:ss"* units with `format_hmmss()`, and breaks set to pretty time-ish values (e.g. 60-second or 5-minute (300 sec) increments) with `breaks_timespan()`, as used in the plots above. See their respective help documentation for more details.

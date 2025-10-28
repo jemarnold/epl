@@ -1,0 +1,53 @@
+url: https://jemarnold.github.io/epl/
+template:
+  bootstrap: 5
+  light-switch: yes
+  opengraph:
+    twitter:
+      creator: '@jem_arnold'
+navbar:
+  structure:
+    right:
+    - search
+    - bluesky
+    - twitter
+    - github
+    - lightswitch
+  components:
+    bluesky:
+      icon: fa-bluesky
+      href: https://bsky.app/profile/jemarnold.bsky.social
+      aria-label: Bluesky
+    twitter:
+      icon: fa-twitter
+      href: https://twitter.com/jem_arnold
+      aria-label: Twitter
+    github:
+      icon: fa-github
+      href: https://github.com/jemarnold/epl
+      aria-label: GitHub
+figures:
+  bg: white
+reference:
+- title: Read data
+  desc: |
+    Read raw data from exported files.
+  contents:
+  - read_parvo
+  - read_tymewear
+- title: Clean data
+  desc: |
+    Clean, filter, and process data.
+  contents: replace_outliers
+- title: Plotting
+  desc: |
+    Tools for pretty plotting.
+  contents:
+  - theme_epl
+  - palette_epl
+  - starts_with("scale")
+- title: Helper functions
+  desc: |
+    Useful functions for common tasks
+  contents: example_epl
+

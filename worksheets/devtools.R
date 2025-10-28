@@ -51,7 +51,7 @@ usethis::use_air() ## for external formatting
 
 8.
 usethis::use_package_doc()
-usethis::use_package("ggplot2")
+usethis::use_package("scales", type = "Suggests")
 - add external package as dependency
 usethis::use_import_from("rlang", "check_installed")
 usethis::use_tidy_description() ## to format DESCRIPTION
@@ -75,29 +75,37 @@ devtools::check() ## will run tests
 - check early & often
 
 13.
-usethis::use_version("patch")
-usethis::use_dev_version()
-usethis::use_news_md()
-- <add description>
-
-
-14.
+usethis::use_readme_rmd()
 devtools::build_readme()
 - Package description & basic use overview
 
-15.
-usethis::use_vignette("Replacing Outliers")
+14.
+usethis::use_news_md() ## to initiate the NEWS.md file
+usethis::use_version("patch")
+usethis::use_dev_version()
+usethis::use_release_issue()
+- <add description>
+
+15. - dont quite know how to implement this yet
+usethis::use_coverage() ## reports test coverage
+usethis::use_github_action("test-coverage") ## to continuously monitor test coverage
+usethis::use_github_action("check-standard")
+-  report the R CMD check status of your development package.
+
+16.
+usethis::use_vignette("reading-data.qmd")
 devtools::build_vignettes() ## Build vignettes if any
 devtools::clean_vignettes()
 
-16.
-usethis::use_github_action("pkgdown")
-usethis::use_pkgdown_github_pages()
+17.
+usethis::use_pkgdown_github_pages() ## same as usethis::use_pkgdown from GitHub Actions
+pkgdown::build_reference(run_dont_run = TRUE)
+# usethis::use_github_action("pkgdown") <what is this?>
 - NEED TO REMOVE `docs` FROM GITIGNORE
-devtools::build_site() ## locally build
+devtools::build_site() ## render local site
 pkgdown::clean_site() ## to remove pkgdown site
 
-17.
+18.
 remotes::install_github("jemarnold/epl") ## install from github
 
 
