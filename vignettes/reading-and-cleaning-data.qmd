@@ -52,6 +52,8 @@ library(epl) ## this package
 theme_set(theme_epl())
 ```
 
+---
+
 ## Specify file path
 
 There are a few ways to point to our data file. If our data files and R script are in the same root folder (or Rstudio project folder), then we should be able to use an implicit file path, e.g.: `"./raw_data/my_file.csv"`.
@@ -84,6 +86,8 @@ file_path
 #> [1] "C:/Program Files/R/R-4.5.1/library/epl/extdata/parvo_binned.csv"
 ```
 
+---
+
 ## Reading file data
 
 ### `read_parvo()`
@@ -115,6 +119,8 @@ parvo <- read_parvo(file_path = file_path, add_timestamp = TRUE)
 parvo
 ```
 
+---
+
 ### `read_tymewear()`
 
 This function will read *"Live Processed CSV"* or *"Post Processed CSV"* files exported from *Tymewear VitalPro* chest strap.
@@ -133,6 +139,8 @@ The output of this function is a list of two data frames:
 tymelive <- read_tymewear(example_epl("tymewear_live"))
 tymelive
 ```
+
+---
 
 ## Clean and filter data
 
@@ -188,9 +196,13 @@ tyme_clean <- tyme_data |>
 1 - mean(abs(diff(tyme_clean$vt))) / mean(abs(diff(tyme_data$vt)))
 ```
 
+---
+
 ### `filter_data()`
 
 `<under development as of 0.2.0>`
+
+---
 
 ### `find_peaks()`
 
@@ -230,6 +242,7 @@ VO2peak <- peak_data$VO2kg
 VO2peak
 ```
 
+---
 
 ## Plotting
 
@@ -285,6 +298,8 @@ ggplot(ramp_data) +
     geom_point(data = peak_data, aes(x = TIME, y = VO2),
                size = 4, shape = 21, stroke = 1)
 ```
+
+---
 
 ### `palette_epl()`
 

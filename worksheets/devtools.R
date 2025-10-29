@@ -88,7 +88,7 @@ usethis::use_github_action("test-coverage") ## Compute test coverage and report 
 
 15.
 usethis::use_vignette("reading-data.qmd")
-devtools::build_vignettes() ## Build vignettes if any
+devtools::build_vignettesignettes() ## Build vignettes if any
 devtools::clean_vignettes()
 
 16.
@@ -103,7 +103,7 @@ pkgdown::clean_site() ## to remove pkgdown site
 usethis::use_news_md() ## to initiate the NEWS.md file
 usethis::use_lifecycle()
 usethis::use_lifecycle_badge("experimental")
-usethis::use_version()
+usethis::use_version("patch")
 usethis::use_dev_version()
 usethis::use_release_issue()
 - <add description>

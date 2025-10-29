@@ -7,6 +7,7 @@ template:
       creator: '@jem_arnold'
 navbar:
   structure:
+    left: [intro, articles, reference, news]
     right:
     - search
     - bluesky
@@ -15,7 +16,7 @@ navbar:
     - lightswitch
   components:
     bluesky:
-      icon: fa-bluesky
+      icon: fa-brands fa-bluesky
       href: https://bsky.app/profile/jemarnold.bsky.social
       aria-label: Bluesky
     twitter:

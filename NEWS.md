@@ -1,3 +1,7 @@
+# epl 0.2.1
+
+* Attempt to fix failing R-CMD-check
+
 # epl 0.2.0
 
 * Create `replace_outliers()` to detect and replace local outliers with `NA` or the local median value.
