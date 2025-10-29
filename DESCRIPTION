@@ -1,7 +1,7 @@
 Package: epl
 Title: Functions and Scripts for the UBC Environmental Physiology
     Laboratory
-Version: 0.1.0.9000
+Version: 0.2.0
 Authors@R: 
     person("Jem", "Arnold", , "jem.arnold@ubc.ca", role = c("aut", "cre"))
 Description: A repository of functions and scripts for common tasks for
