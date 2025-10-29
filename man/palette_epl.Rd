@@ -25,5 +25,5 @@ scales::show_col(palette_epl(c("red", "orange")))
 
 }
 \seealso{
-\code{\link[=theme_epl]{theme_epl()}} \code{\link[=scale_colour_epl]{scale_colour_epl()}}
+\code{\link[=theme_epl]{theme_epl()}} \code{\link[=scale_colour_epl]{scale_colour_epl()}} \code{\link[=palette_parvo]{palette_parvo()}}
 }

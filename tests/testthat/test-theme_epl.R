@@ -17,20 +17,31 @@ test_that("theme_epl accepts custom colours", {
     expect_s3_class(custom, "theme")
 })
 
-test_that("palette_epl returns correct colour vector", {
+test_that("palettes returns correct colour vector", {
     all_colours <- palette_epl()
     expect_type(all_colours, "character")
     expect_length(all_colours, 12)
     expect_true(all(grepl("^#[0-9A-Fa-f]{6}", all_colours)))
+
+    all_colours <- palette_parvo()
+    expect_type(all_colours, "character")
+    expect_length(all_colours, 28)
+    expect_true(all(
+        grepl("^#[0-9A-Fa-f]{6}", all_colours) | all_colours %in% colours()
+    ))
 })
 
-test_that("palette_epl subset by number works", {
+test_that("palettes subset by number works", {
     expect_length(palette_epl(3), 3)
     expect_length(palette_epl(1), 1)
     expect_error(palette_epl(2:4))
+
+    expect_length(palette_parvo(1), 1)
+    expect_length(palette_parvo(2), 1)
+    expect_length(palette_parvo(2:3), 2)
 })
 
-test_that("palette_epl subset by name works", {
+test_that("palettes subset by name works", {
     red <- palette_epl("red")
     expect_named(red, "red")
     expect_equal(red[["red"]], "#ED0000FF")
@@ -38,11 +49,23 @@ test_that("palette_epl subset by name works", {
     multi <- palette_epl(c("red", "blue"))
     expect_length(multi, 2)
     expect_named(multi, c("red", "blue"))
+
+    power <- palette_parvo("Power")
+    expect_named(power, "Power")
+    expect_equal(power[["Power"]], "#e6ce3f")
+
+    multi <- palette_parvo("Power", "VO2")
+    expect_length(multi, 2)
+    expect_named(multi, c("Power", "VO2"))
 })
 
 test_that("palette_epl interpolates when n > 12", {
     many <- palette_epl(20)
     expect_length(many, 20)
+
+    ## palette_parvo does not interpolate
+    expect_error(palette_parvo(50), "Exceeded.*colours available")
+    expect_error(palette_parvo(1:50), "Exceeded.*colours available")
 })
 
 test_that("breaks_timespan returns a function", {

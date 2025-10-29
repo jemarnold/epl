@@ -117,7 +117,7 @@ theme_epl <- function(
 #'
 #' @return Named or unnamed character vector of hex colours.
 #'
-#' @seealso [theme_epl()] [scale_colour_epl()]
+#' @seealso [theme_epl()] [scale_colour_epl()] [palette_parvo()]
 #'
 #' @examples
 #' \dontrun{
@@ -154,6 +154,69 @@ palette_epl <- function(n = NULL) {
         ## interpolate if more colours needed, but this probably won't look good!
         return(grDevices::colorRampPalette(colours_epl)(n))
     }
+}
+
+
+
+#' Custom Parvo colour palette
+#'
+#' @param ... A character string specifying the named colour(s) to return.
+#'
+#' @return Named character vector of hex colours.
+#'
+#' @seealso [theme_epl()] [scale_colour_epl()] [palette_epl()]
+#'
+#' @examples
+#' \dontrun{
+#' scales::show_col(palette_parvo())
+#' scales::show_col(palette_parvo("VO2", "VCO2", "RER", "VEVO2"))
+#' }
+#'
+#' @export
+palette_parvo <- function(...) {
+    cols <- c(...)
+    colours_parvo <- c(
+        "Power"        = "#e6ce3f",
+        "Cadence"      = "#7dbf70",
+        "Heart Rate"   = "#ba2630",
+        "HR"           = "#ba2630",
+        "VO2/HR"       = "red",
+        "O2pulse"      = "red",
+        "Speed"        = "#4a7db0",
+        "VO2"          = "#98b6d3",
+        "VCO2"         = "navajowhite3",
+        "VE"           = "deepskyblue",
+        "RF"           = "indianred3",
+        "RR"           = "indianred3",
+        "BR"           = "indianred3",
+        "TV"           = "#7dbf70",
+        "VT"           = "#7dbf70",
+        "RER"          = "mediumpurple2",
+        "VE/VO2"       = "springgreen2",
+        "VEVO2"        = "springgreen2",
+        "VE/VCO2"      = "tomato",
+        "VEVCO2"       = "tomato",
+        "FEO2"         = "sienna1",
+        "FECO2"        = "sienna4",
+        "FatOx"        = "sienna1",
+        "CarbOx"       = "sienna4",
+        "RPE"          = "darkblue",
+        "BLa"          = "red",
+        "Left"         = "#ff80ff",
+        "Right"        = "#0080ff"
+    )
+    col_length <- length(colours_parvo)
+    if (is.null(cols)) {
+        return(colours_parvo)
+    }
+    if (all(is.numeric(cols)) &&
+        (any(cols > col_length) || length(cols) > col_length)
+    ) {
+        cli::cli_abort(
+            "Exceeded {.val {col_length}} colours available."
+        )
+    }
+    colours_parvo[cols]
 }
 
 
