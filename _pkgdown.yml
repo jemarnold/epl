@@ -46,7 +46,7 @@ reference:
     Tools for pretty plotting.
   contents:
   - theme_epl
-  - palette_epl
+  - starts_with("palette")
   - starts_with("scale")
 - title: Helper functions
   desc: |

@@ -35,8 +35,6 @@
 #'
 #' @examples
 #' \dontrun{
-#' library(ggplot2)
-#'
 #' ## set theme for the current script
 #' theme_set(theme_epl())
 #'
@@ -230,7 +228,7 @@ palette_parvo <- function(...) {
 #'
 #' @return A ggplot2 scale object.
 #'
-#' @seealso [palette_epl()] [theme_epl()]
+#' @seealso [theme_epl()] [palette_epl()]
 #' @rdname scale_colour_epl
 #' @export
 scale_colour_epl <- function(..., aesthetics = "colour") {

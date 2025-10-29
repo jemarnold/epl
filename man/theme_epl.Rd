@@ -53,8 +53,6 @@ alternative font which can be installed from
 }
 \examples{
 \dontrun{
-library(ggplot2)
-
 ## set theme for the current script
 theme_set(theme_epl())
 

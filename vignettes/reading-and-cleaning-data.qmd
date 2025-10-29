@@ -1,7 +1,7 @@
 ---
-title: "Reading and cleaning data"
+title: "Reading and Cleaning Data"
 vignette: >
-    %\VignetteIndexEntry{reading-and-cleaning-data}
+    %\VignetteIndexEntry{Reading and Cleaning Data}
     %\VignetteEngine{quarto::html}
     %\VignetteEncoding{UTF-8}
 format:
@@ -28,9 +28,9 @@ In this vignette we will learn:
 
 - Plotting functions for pretty data visualision with `theme_epl()`, `palette_epl()`, and other `{ggplot2}` helper functions.
 
-- To perform digital filtering of metabolic data `<under development 0.2.0>`.
+- To perform digital filtering of metabolic data `<under development as of 0.2.0>`.
 
-- To calculate peak values (e.g. V̇O~2~peak) `<under development 0.2.0>`.
+- To calculate peak values (e.g. V̇O~2~peak) `<under development as of 0.2.0>`.
 
 ::: {.callout-note}
 ### {epl} 0.2.0 internal release notes:
@@ -190,7 +190,7 @@ tyme_clean <- tyme_data |>
 
 ### `filter_data()`
 
-`<under development 0.2.0>`
+`<under development as of 0.2.0>`
 
 ### `find_peaks()`
 

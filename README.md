@@ -5,6 +5,11 @@
 
 <!-- badges: start -->
 
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![R-CMD-check](https://github.com/jemarnold/epl/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/jemarnold/epl/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/jemarnold/epl/graph/badge.svg)](https://app.codecov.io/gh/jemarnold/epl)
 <!-- badges: end -->
 
 *{epl}* is a repository of functions and scripts for common tasks for
@@ -252,7 +257,7 @@ scales::show_col(palette_epl())
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
-## To do
+## To do (as of `0.2.0`)
 
 - Add digital filtering methods (e.g. Butterworth, smoothing spline,
   simple moving average, binning).

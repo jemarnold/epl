@@ -12,9 +12,10 @@ Depends:
     R (>= 4.1)
 Imports: 
     cli,
-    dplyr,
-    ggplot2,
+    dplyr (>= 1.1.0),
+    ggplot2 (>= 4.0.0),
     janitor,
+    lifecycle,
     lubridate,
     purrr,
     readr,
@@ -27,7 +28,6 @@ Imports:
 Suggests: 
     knitr,
     quarto,
-    rmarkdown,
     scales,
     testthat (>= 3.0.0)
 VignetteBuilder: 

@@ -25,5 +25,5 @@ A ggplot2 scale object.
 Scales for custom EPL palette
 }
 \seealso{
-\code{\link[=palette_epl]{palette_epl()}} \code{\link[=theme_epl]{theme_epl()}}
+\code{\link[=theme_epl]{theme_epl()}} \code{\link[=palette_epl]{palette_epl()}}
 }

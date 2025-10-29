@@ -35,22 +35,24 @@
 #' @seealso [pracma::hampel()]
 #'
 #' @examples
-#' set.seed(8421)
-#' x <- numeric(1024)
-#' z <- rnorm(1024)
-#' x[1] <- z[1]
-#' for (i in 2:1024) {
-#'     x[i] <- 0.4*x[i-1] + 0.8*x[i-1]*z[i-1] + z[i]
-#' }
-#' x[150:200] <- NA ## generate NA values
-#' y <- replace_outliers(x, width = 20, method = "median")
-#' ind <- which(x != y) ## identify outlier indices
-#' outliers <- x[ind] ## identify outlier values
+#' tyme_data <- read_tymewear(example_epl("tymewear_live"))$data
+#' vt_filtered <- replace_outliers(tyme_data$vt, width = 7, method = "median")
 #'
 #' \dontrun{
-#' plot(1:1024, x, type = "l")
-#' points(ind, outliers, pch = 21, col = "darkred")
-#' lines(y, col = "blue")
+#' ggplot(tyme_data) +
+#'     aes(x = time, y = vt) +
+#'     ylab("Tidal Volume (L)") +
+#'     scale_x_continuous(
+#'         name = "Time (mm:ss)",
+#'         breaks = breaks_timespan(),
+#'         labels = format_hmmss
+#'     ) +
+#'     scale_colour_epl() +
+#'     geom_line(aes(colour = "BR")) +
+#'     geom_point(
+#'         data = slice(tyme_data, which(vt_filtered != vt)),
+#'         aes(y = vt, colour = "outliers")
+#'     )
 #' }
 #'
 #' @export
