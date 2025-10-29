@@ -247,7 +247,7 @@ ggplot(ramp_data) +
 <img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ``` r
-scales::show_col(palette_epl()) ## visualise the colour palette
+scales::show_col(palette_epl())
 ```
 
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
@@ -257,8 +257,6 @@ scales::show_col(palette_epl()) ## visualise the colour palette
 - Add digital filtering methods (e.g. Butterworth, smoothing spline,
   simple moving average, binning).
 
-- Add mean peak value detection, i.e. for V̇O<sub>2</sub>peak.
-
 - Update EPL Parvo App.
 
 - Create vignette for main package usage.
@@ -267,6 +265,8 @@ scales::show_col(palette_epl()) ## visualise the colour palette
 
 - Add 4-parameter monoexponential curve fitting via `nls()`
   self-starting functions.
+
+- ~~Add mean peak value detection, i.e. for V̇O<sub>2</sub>peak.~~
 
 - ~~Add template display theme for `ggplot2` plotting.~~
 

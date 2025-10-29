@@ -174,14 +174,12 @@ ggplot(ramp_data) +
 
 
 ```{r}
-scales::show_col(palette_epl()) ## visualise the colour palette
+scales::show_col(palette_epl())
 ```
 
 ## To do
 
 - Add digital filtering methods (e.g. Butterworth, smoothing spline, simple moving average, binning).
-
-- Add mean peak value detection, i.e. for V̇O~2~peak.
 
 - Update EPL Parvo App.
 
@@ -190,6 +188,8 @@ scales::show_col(palette_epl()) ## visualise the colour palette
 - Update `read_tymewear()` method for *"tymepost*" export file type.
 
 - Add 4-parameter monoexponential curve fitting via `nls()` self-starting functions.
+
+- ~~Add mean peak value detection, i.e. for V̇O~2~peak.~~
 
 - ~~Add template display theme for `ggplot2` plotting.~~
 

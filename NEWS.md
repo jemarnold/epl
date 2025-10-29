@@ -4,6 +4,7 @@
 * Create `find_peaks()` to detect peak values within a given timespan, e.g. for finding 30-second V̇O~2~peak.
 * Create `theme_epl()` and other `{ggplot2}` helper functions for pretty plotting.
 * Create *"Reading and cleaning data"* vignette on common usage of functions. Available [here](https://jemarnold.github.io/epl/articles/reading-and-cleaning-data.html).
+* Write custom `Reference/Index` package documentation available [here](https://jemarnold.github.io/epl/reference/index.html)
 * Removed `time_column` argument for `read_parvo()` since as far as I can tell the time column is always *"TIME"*.
 * Re-write simplified README pointing to vignette for more details.
 * Updated `test_that` for new functions.
