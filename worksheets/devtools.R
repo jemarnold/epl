@@ -88,7 +88,7 @@ usethis::use_github_action("test-coverage") ## Compute test coverage and report 
 
 15.
 usethis::use_vignette("reading-data.qmd")
-devtools::build_vignettesignettes() ## Build vignettes if any
+devtools::build_vignettes() ## Build vignettes if any
 devtools::clean_vignettes()
 
 16.

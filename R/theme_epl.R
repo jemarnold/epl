@@ -242,14 +242,7 @@ scale_colour_epl <- function(..., aesthetics = "colour") {
 
 #' @rdname scale_colour_epl
 #' @export
-scale_color_epl <- function(..., aesthetics = "color") {
-    ggplot2::discrete_scale(
-        aesthetics = aesthetics,
-        palette = palette_epl,
-        na.value = "grey10",
-        ...
-    )
-}
+scale_color_epl <- scale_colour_epl
 
 #' @rdname scale_colour_epl
 #' @export

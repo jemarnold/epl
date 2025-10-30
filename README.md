@@ -34,9 +34,6 @@ You can install the development version of *{epl}* from
 ``` r
 ## install.packages("remotes")
 remotes::install_github("jemarnold/epl")
-
-## explicitly request vignettes
-remotes::install_github("jemarnold/epl", dependencies = TRUE, build_vignettes = TRUE)
 ```
 
 ## Usage

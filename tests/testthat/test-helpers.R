@@ -1,3 +1,57 @@
+## validate_data_frame() ==================================================
+test_that("validate_data_frame works", {
+    expect_silent(validate_data_frame(mtcars))
+
+    expect_error(validate_data_frame(1:10), "`data` should be a data frame")
+    expect_error(validate_data_frame(matrix(1:9, 3, 3)), "`data` should be a data frame")
+    expect_error(validate_data_frame(list(x = 1, y = 2)), "`data` should be a data frame")
+    expect_error(validate_data_frame(NULL), "`data` should be a data frame")
+})
+
+## drop_rows_after_first_na() =============================================
+test_that("drop_rows_after_first_na removes rows after first all-NA row", {
+    df <- data.frame(x = c(1, 2, NA, 4), y = c(10, 20, NA, 40))
+    result <- drop_rows_after_first_na(df)
+    expect_equal(nrow(result), 2)
+    expect_equal(result$x, c(1, 2))
+})
+
+test_that("drop_rows_after_first_na handles no all-NA rows", {
+    df <- data.frame(x = c(1, 2, NA, 4), y = c(10, 20, 30, 40))
+    result <- drop_rows_after_first_na(df)
+    expect_identical(result, df)
+})
+
+test_that("drop_rows_after_first_na handles first row all-NA", {
+    df <- data.frame(x = c(NA, 2, 3), y = c(NA, 20, 30))
+    result <- drop_rows_after_first_na(df)
+    expect_equal(nrow(result), 0)
+    expect_equal(ncol(result), 2)
+})
+
+
+test_that("drop_rows_after_first_na handles multiple all-NA rows", {
+    df <- data.frame(x = c(1, 2, NA, NA), y = c(10, 20, NA, NA))
+    result <- drop_rows_after_first_na(df)
+    expect_equal(nrow(result), 2)
+    expect_equal(result$y, c(10, 20))
+})
+
+test_that("drop_rows_after_first_na preserves structure with no NAs", {
+    df <- data.frame(x = 1:5, y = 6:10, z = letters[1:5])
+    result <- drop_rows_after_first_na(df)
+    expect_identical(result, df)
+    expect_type(result$z, "character")
+})
+
+test_that("drop_rows_after_first_na handles structure with all NAs", {
+    df <- data.frame(x = NA, y = NA)
+    result <- drop_rows_after_first_na(df)
+    expect_equal(nrow(result), 0)
+    expect_equal(ncol(result), 2)
+})
+
+## between() ===============================================================
 test_that("between() handles basic inclusive range (default)", {
     expect_equal(between(5, 1, 10), TRUE)
     expect_equal(between(1, 1, 10), TRUE)

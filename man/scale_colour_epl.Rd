@@ -8,7 +8,7 @@
 \usage{
 scale_colour_epl(..., aesthetics = "colour")
 
-scale_color_epl(..., aesthetics = "color")
+scale_color_epl(..., aesthetics = "colour")
 
 scale_fill_epl(..., aesthetics = "fill")
 }
