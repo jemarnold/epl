@@ -362,7 +362,8 @@ breaks_timespan <- function(
 #' @keywords internal
 #' @export
 format_hmmss <- function(x) {
-    validate_numeric(x)
+    # validate_numeric(x)
+    x <- as.numeric(x)
     ## logical whether to handle NAs
     handle_na <- any(is.na(x))
 

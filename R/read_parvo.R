@@ -237,9 +237,9 @@ read_parvo <- function(
             }),
             ## convert `TIME` in "mm:ss" or "min" to seconds
             TIME = if (is.character(TIME)) {
-                as.numeric(lubridate::ms(TIME))
+                as.numeric(lubridate::ms(TIME, quiet = TRUE))
             } else {
-                TIME * 60
+                as.numeric(TIME * 60)
             },
         ) |>
         ## drops rows after/including the first row with all NA
