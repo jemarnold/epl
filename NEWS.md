@@ -1,3 +1,12 @@
+# epl 0.2.3
+
+* Attach example `parvo_excel.xlsx`. Documented in `data.R`
+    * For test coverage of excel files.
+    * And test coverage of *"economy"* and *"GE"* metabolic calculations.
+* Update `example_epl()` to avoid error on open files with *"~"*.
+* Minor update to `read_parvo()` to remove some redundant code
+* Update `test_that` coverage for `example_epl()` and `read_parvo()`
+
 # epl 0.2.2
 
 * Update EPL Parvo App available [here](https://jem-arnold.shinyapps.io/EPL-Parvo-App/).
