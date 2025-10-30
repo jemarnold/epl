@@ -28,8 +28,7 @@ app](https://jem-arnold.shinyapps.io/EPL-Parvo-App/) to read, clean,
 plot, and download Parvo metabolic data.
 
 <figure>
-<img
-src="C:/Users/Jem/Documents/Screenshots/2025-10/2025-10-29_22-25-16.jpg"
+<img src="man/figures/epl-parvo-app-9-panel-plot.jpg"
 alt="9-panel plots available in the EPL Parvo app" />
 <figcaption aria-hidden="true">9-panel plots available in the EPL Parvo
 app</figcaption>
