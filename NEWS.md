@@ -1,6 +1,14 @@
+# epl 0.2.2
+
+* Update EPL Parvo App available [here](https://jem-arnold.shinyapps.io/EPL-Parvo-App/).
+     * Required small edits to `read_parvo()` and `format_hmmss()`.
+     * Currently outlier detection is hidden. Need to update functionality to create the outlier data table.
+* Updates to `test_that` for better coverage.
+
 # epl 0.2.1
 
-* Attempt to fix failing R-CMD-check
+* Fix `R-CMD-check.yaml`
+* Setup codecov secret token
 
 # epl 0.2.0
 
