@@ -1,5 +1,15 @@
-test_that("read_parvo() handles missing file", {
+test_that("read_parvo() handles missing/invalid file", {
     expect_error(read_parvo("nonexistent.csv"), "File not found")
+
+    tmp <- tempfile(fileext = ".invalid")
+    writeLines("dummy content", tmp)
+    on.exit(unlink(tmp))
+    expect_error(read_parvo(tmp), "Unrecognised file type")
+
+    tmp <- tempfile(fileext = ".XLS")
+    writeLines("dummy content", tmp)
+    on.exit(unlink(tmp))
+    expect_error(read_parvo(tmp), "`.XLS`.*cannot be opened.")
 })
 
 test_that("read_parvo() returns list with correct structure", {
@@ -14,7 +24,7 @@ test_that("read_parvo() returns list with correct structure", {
 })
 
 test_that("read_parvo() data has expected columns and types", {
-    file_path <- example_epl("parvo_binned")
+    file_path <- example_epl("parvo_excel")
     result <- read_parvo(file_path, add_timestamp = TRUE)$data
 
     # Columns

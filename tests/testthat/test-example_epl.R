@@ -34,3 +34,25 @@ test_that("example_epl() errors on multiple partial matches", {
 test_that("example_epl() errors on non-existent file", {
     expect_error(example_epl("nonexistent_file_xyz"), "'arg' should be one of")
 })
+
+test_that("example_epl() does not show files with `~`", {
+    # Create test directory structure
+    test_dir <- file.path(tempdir(), "epl_test")
+    dir.create(test_dir, recursive = TRUE)
+
+    # Create test files
+    file.create(file.path(test_dir, "data.csv"))
+    file.create(file.path(test_dir, "~temp.csv"))
+    file.create(file.path(test_dir, "results.xlsx"))
+
+    result <- list.files(test_dir)
+    expect_length(result, 3)
+    expect_true(any(grepl("^~", result)))
+
+    result <- list.files(test_dir, pattern = "^[^~]")
+
+    expect_length(result, 2)
+    expect_false(any(grepl("^~", result)))
+    expect_true(all(c("data.csv", "results.xlsx") %in% result))
+})
+

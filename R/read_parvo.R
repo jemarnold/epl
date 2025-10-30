@@ -188,19 +188,21 @@ read_parvo <- function(
     ## parvo_data ============================================
     data_table <- data_clean[header_row:nrow(data_clean), ]
 
-    parvo_names <- (\(df) {
+    parvo_names <- (\(.df) {
         # Extract first 3 rows as character vectors
-        row1 <- as.character(df[1, ])
-        row2 <- as.character(df[2, ])
-        row3 <- as.character(df[3, ])
+        row1 <- as.character(.df[1, ])
+        row2 <- as.character(.df[2, ])
+        row3 <- as.character(.df[3, ])
 
-        ## combine row1 with row2 (unless row2 is NA or in exclusion list)
+        ## combine row1 with row2 (unless row2 is in exclusion list)
         exclude <- c(NA, "STPD", "BTPS", "ATPS")
         names <- ifelse(
-            row2 %in% exclude | is.na(row2),
+            row2 %in% exclude,
             row1,
             paste0(row1, row2)
         )
+        ## omit empty name columns
+        names <- names[!is.na(names)]
 
         ## handle duplicates
         dup_idx <- duplicated(names)

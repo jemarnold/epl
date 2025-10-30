@@ -20,7 +20,11 @@
 #'
 #' @export
 example_epl <- function(file = NULL) {
-    dir_files <- dir(system.file("extdata", package = "epl"))
+    dir_files <- list.files(
+        system.file("extdata", package = "epl"),
+        pattern = "^[^~]" ## exclude open files
+    )
+
     if (is.null(file)) {
         return(dir_files)
     }
