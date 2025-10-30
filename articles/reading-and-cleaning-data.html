@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">epl</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,9 +86,9 @@
 <ul>
 <li><p>To read files exported from <em>Parvo Medics TrueOne 2400</em> metabolic cart and <em>Tymewear Vital Pro</em> ventilation chest strap with <code><a href="../reference/read_parvo.html">read_parvo()</a></code> and <code><a href="../reference/read_tymewear.html">read_tymewear()</a></code>, respectively.</p></li>
 <li><p>To detect and replace local outlier values in metabolic data with <code><a href="../reference/replace_outliers.html">replace_outliers()</a></code>.</p></li>
+<li><p>To calculate peak values (e.g. V̇O<sub>2</sub>peak`.</p></li>
 <li><p>Plotting functions for pretty data visualision with <code><a href="../reference/theme_epl.html">theme_epl()</a></code>, <code><a href="../reference/palette_epl.html">palette_epl()</a></code>, and other <a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a> helper functions.</p></li>
 <li><p>To perform digital filtering of metabolic data <code>&lt;under development as of 0.2.0&gt;</code>.</p></li>
-<li><p>To calculate peak values (e.g. V̇O<sub>2</sub>peak) <code>&lt;under development as of 0.2.0&gt;</code>.</p></li>
 </ul>
 <div>
 <blockquote>
@@ -107,9 +107,9 @@
 <span><span class="co">## set the script default {ggplot2} display theme (see below for details)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/get_theme.html" class="external-link">theme_set</a></span><span class="op">(</span><span class="fu"><a href="../reference/theme_epl.html">theme_epl</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<hr>
 <section class="level2"><h2 id="specify-file-path">Specify file path<a class="anchor" aria-label="anchor" href="#specify-file-path"></a>
 </h2>
+<hr>
 <p>There are a few ways to point to our data file. If our data files and R script are in the same root folder (or Rstudio project folder), then we should be able to use an implicit file path, e.g.: <code>"./raw_data/my_file.csv"</code>.</p>
 <p>If the data file is elsewhere, we will need to define the full path explicitly, e.g.:</p>
 <div class="cell" data-layout-align="center">
@@ -117,6 +117,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"~"</span>, <span class="st">"my_folder"</span>, <span class="st">"raw_data"</span>, <span class="st">"my_file.csv"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "~/my_folder/raw_data/my_file.csv"</span></span></code></pre></div>
 </div>
+<hr>
 <section class="level3"><h3 id="example_epl">
 <code>example_epl()</code><a class="anchor" aria-label="anchor" href="#example_epl"></a>
 </h3>
@@ -140,8 +141,9 @@
 <span><span class="va">file_path</span></span>
 <span><span class="co">#&gt; [1] "C:/Program Files/R/R-4.5.1/library/epl/extdata/parvo_binned.csv"</span></span></code></pre></div>
 </div>
-<hr></section></section><section class="level2"><h2 id="reading-file-data">Reading file data<a class="anchor" aria-label="anchor" href="#reading-file-data"></a>
+</section></section><section class="level2"><h2 id="reading-file-data">Reading file data<a class="anchor" aria-label="anchor" href="#reading-file-data"></a>
 </h2>
+<hr>
 <section class="level3"><h3 id="read_parvo">
 <code>read_parvo()</code><a class="anchor" aria-label="anchor" href="#read_parvo"></a>
 </h3>
@@ -262,8 +264,9 @@
 <span><span class="co">#&gt; 10 sport         "2"     </span></span>
 <span><span class="co">#&gt; # ℹ 50 more rows</span></span></code></pre></div>
 </div>
-<hr></section></section><section class="level2"><h2 id="clean-and-filter-data">Clean and filter data<a class="anchor" aria-label="anchor" href="#clean-and-filter-data"></a>
+</section></section><section class="level2"><h2 id="clean-and-filter-data">Clean and filter data<a class="anchor" aria-label="anchor" href="#clean-and-filter-data"></a>
 </h2>
+<hr>
 <section class="level3"><h3 id="replace_outliers">
 <code>replace_outliers()</code><a class="anchor" aria-label="anchor" href="#replace_outliers"></a>
 </h3>
@@ -282,7 +285,7 @@
 <li>
 <code>method</code>: defines how local outliers will be replaced; either <em>“median”</em> with the local median value (the default), or <em>“NA”</em> to remove the outlier and leave as a missing <code>NA</code> value.</li>
 </ul>
-<p>See <code><a href="../reference/replace_outliers.html">?replace_outliers</a></code> for more information.</p>
+<p>Keep in mind, mixing chamber binned data (i.e. from Parvo) does not need to be filtered for outliers. Unfortunately they are baked into the averages. See <code><a href="../reference/replace_outliers.html">?replace_outliers</a></code> for more information.</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tyme_data</span> <span class="op">&lt;-</span> <span class="va">tymelive</span><span class="op">$</span><span class="va">data</span></span>
@@ -345,7 +348,7 @@
 <div>
 <blockquote>
 <p><strong>Note</strong></p>
-<p><code>span = 30</code> sec is the default most common timespan for calculating V̇O<sub>2</sub>peak.</p>
+<p><code>span = 30</code> seconds is the most common timespan for calculating V̇O<sub>2</sub>peak.</p>
 </blockquote>
 </div>
 <ul>
@@ -360,9 +363,9 @@
 <span></span>
 <span><span class="va">peak_data</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/find_peaks.html">find_peaks</a></span><span class="op">(</span></span>
 <span>    <span class="va">ramp_data</span>, </span>
-<span>    x <span class="op">=</span> <span class="st">"TIME"</span>, <span class="co">## assign `x` and `y` values</span></span>
+<span>    x <span class="op">=</span> <span class="st">"TIME"</span>, <span class="co">## assign `x` and `y` column names</span></span>
 <span>    y <span class="op">=</span> <span class="st">"VO2"</span>, </span>
-<span>    span <span class="op">=</span> <span class="fl">30</span>, <span class="co">## find peak mean values within a 30-sec timespan</span></span>
+<span>    span <span class="op">=</span> <span class="fl">30</span>, <span class="co">## find peak mean values within a 30-sec (default) timespan</span></span>
 <span>    between <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1500</span>, <span class="fl">2000</span><span class="op">)</span> <span class="co">## restrict the range in which to look for peaks</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">peak_data</span></span>
@@ -379,8 +382,9 @@
 <span><span class="va">VO2peak</span></span>
 <span><span class="co">#&gt; [1] 49.94765</span></span></code></pre></div>
 </div>
-<hr></section></section><section class="level2"><h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
+</section></section><section class="level2"><h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
 </h2>
+<hr>
 <section class="level3"><h3 id="theme_epl">
 <code>theme_epl()</code><a class="anchor" aria-label="anchor" href="#theme_epl"></a>
 </h3>
@@ -427,7 +431,7 @@
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_area</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">VO2</span>, colour <span class="op">=</span> <span class="st">"VO2"</span>, fill <span class="op">=</span> <span class="st">"VO2"</span><span class="op">)</span>, </span>
 <span>              alpha <span class="op">=</span> <span class="fl">0.1</span>, key_glyph <span class="op">=</span> <span class="st">"path"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">VCO2</span>, colour <span class="op">=</span> <span class="st">"VCO2"</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">peak_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TIME</span>, y <span class="op">=</span> <span class="va">VO2</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">peak_data</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">TIME</span>, y <span class="op">=</span> <span class="va">VO2</span><span class="op">)</span>, <span class="co">## VO2peak identified earlier</span></span>
 <span>               size <span class="op">=</span> <span class="fl">4</span>, shape <span class="op">=</span> <span class="fl">21</span>, stroke <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -452,7 +456,7 @@
 </div>
 </div>
 </div>
-</section><section class="level3"><h3 id="other-ggplot2-helper-functions">Other <code>{ggplot2}</code> helper functions<a class="anchor" aria-label="anchor" href="#other-ggplot2-helper-functions"></a>
+<hr></section><section class="level3"><h3 id="other-ggplot2-helper-functions">Other <code>{ggplot2}</code> helper functions<a class="anchor" aria-label="anchor" href="#other-ggplot2-helper-functions"></a>
 </h3>
 <p>Time values on the x-axis can be displayed in <em>“h:mm:ss”</em> units with <code><a href="../reference/format_hmmss.html">format_hmmss()</a></code>, and breaks set to pretty time-ish values (e.g. 60-second or 5-minute (300 sec) increments) with <code><a href="../reference/breaks_timespan.html">breaks_timespan()</a></code>, as used in the plots above. See their respective help documentation for more details.</p>
 </section></section><script id="quarto-html-after-body" type="application/javascript">
