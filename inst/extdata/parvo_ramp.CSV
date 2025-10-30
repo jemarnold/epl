@@ -1,10 +1,10 @@
 "University of British Columbia", "", "", "", "", "", "", "", "", "(20190902T)"
 "Environmental Physiology Lab (MC I)"
-"*** JA ***", 2025, "/", 4, "/", 16, 10, ":", 59, 11
+"*** TEMPLATE ***", 2025, "/", 4, "/", 16, 10, ":", 59, 11
 
 "Patient Information"
-"Name", "A, R", "File number", "0", "Doctor", "JA"
-"Age", 17, "yrs", "Sex", "M"
+"Name", "RAMP, ", "File number", "0", "Doctor", ""
+"Age", 20, "yrs", "Sex", "M"
 "Height", 70.275589, "in", 178.500000, "cm", "Weight", 160.820007, "lb", 73.099998, "kg"
 "Tech", ""
 

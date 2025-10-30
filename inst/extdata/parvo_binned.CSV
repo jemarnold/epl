@@ -1,9 +1,9 @@
 "University of British Columbia", "", "", "", "", "", "", "", "", "(20190902T)"
 "Environmental Physiology Lab (MC I)"
-"*** JA ***", 2025, "/", 10, "/", 23, 10, ":", 50, 5
+"*** TEMPLATE ***", 2025, "/", 10, "/", 23, 10, ":", 50, 5
 
 "Patient Information"
-"Name", "TW02, ", "File number", "0", "Doctor", "Sclimpickens"
+"Name", "TW02, ", "File number", "0", "Doctor", ""
 "Age", 0, "yrs", "Sex", "M"
 "Height", 69.291336, "in", 176.000000, "cm", "Weight", 156.199997, "lb", 71.000000, "kg"
 "Tech", ""
