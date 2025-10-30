@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# epl
+# Environmental Physiology Laboratory (EPL)
 
 <!-- badges: start -->
 
@@ -22,9 +22,18 @@ website](https://jemarnold.github.io/epl/).
 
 ## Online App
 
-A rudimentary implementation of some of the *{epl}* functions are
-available as [a *Shiny* app](jem-arnold.shinyapps.io/EPL-Parvo-App/) to
-read, clean, plot, and download Parvo metabolic data.
+A rudimentary *“no-code”* implementation of some of the *{epl}*
+functions are available as [a *Shiny*
+app](https://jem-arnold.shinyapps.io/EPL-Parvo-App/) to read, clean,
+plot, and download Parvo metabolic data.
+
+<figure>
+<img
+src="C:/Users/Jem/Documents/Screenshots/2025-10/2025-10-29_22-25-16.jpg"
+alt="9-panel plots available in the EPL Parvo app" />
+<figcaption aria-hidden="true">9-panel plots available in the EPL Parvo
+app</figcaption>
+</figure>
 
 ## Installation
 
@@ -135,18 +144,18 @@ tymelive
 #> 
 #> $details
 #> # A tibble: 60 × 2
-#>    parameter     value   
-#>    <chr>         <chr>   
-#>  1 Info Section  ""      
-#>  2 type          "0"     
-#>  3 stages        "[]"    
-#>  4 gender        "Female"
-#>  5 weight        "64.0"  
-#>  6 weight_units  "SI"    
-#>  7 activity-name "TW02"  
-#>  8 f_v           "1.0"   
-#>  9 activity-type "0"     
-#> 10 sport         "2"     
+#>    parameter     value 
+#>    <chr>         <chr> 
+#>  1 Info Section  ""    
+#>  2 type          "0"   
+#>  3 stages        "[]"  
+#>  4 gender        "Male"
+#>  5 weight        "71.0"
+#>  6 weight_units  "SI"  
+#>  7 activity-name "TW02"
+#>  8 f_v           "1.0" 
+#>  9 activity-type "0"   
+#> 10 sport         "2"   
 #> # ℹ 50 more rows
 ```
 

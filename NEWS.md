@@ -1,11 +1,16 @@
+# epl 0.2.4
+
+* Fix broken link to EPL Parvo Shiny App in the README.
+* Add an image of the 9-panel plot implemented in the app. 
+
 # epl 0.2.3
 
 * Attach example `parvo_excel.xlsx`. Documented in `data.R`
     * For test coverage of excel files.
     * And test coverage of *"economy"* and *"GE"* metabolic calculations.
 * Update `example_epl()` to avoid error on open files with *"~"*.
-* Minor update to `read_parvo()` to remove some redundant code
-* Update `test_that` coverage for `example_epl()` and `read_parvo()`
+* Minor update to `read_parvo()` to remove some redundant code.
+* Update `test_that` coverage for `example_epl()` and `read_parvo()`.
 
 # epl 0.2.2
 

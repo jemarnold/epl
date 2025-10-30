@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# epl
+# Environmental Physiology Laboratory (EPL)
 
 <!-- badges: start -->
 [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
@@ -30,8 +30,9 @@ For more information and vignettes on usage, please visit [the package website](
 
 ## Online App
 
-A rudimentary implementation of some of the *{epl}* functions are available as [a *Shiny* app](jem-arnold.shinyapps.io/EPL-Parvo-App/) to read, clean, plot, and download Parvo metabolic data.
+A rudimentary *"no-code"* implementation of some of the *{epl}* functions are available as [a *Shiny* app](https://jem-arnold.shinyapps.io/EPL-Parvo-App/) to read, clean, plot, and download Parvo metabolic data.
 
+![9-panel plots available in the EPL Parvo app](C:/Users/Jem/Documents/Screenshots/2025-10/2025-10-29_22-25-16.jpg)
 
 
 ## Installation
