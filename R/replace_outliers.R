@@ -73,7 +73,9 @@ replace_outliers <- function(
     }
     method <- match.arg(method)
     method <- method == "median" ## into logical
-    validate_numeric(t0, 1, c(0, Inf), integer = TRUE, msg = "one-element positive")
+    validate_numeric(
+        t0, 1, c(0, Inf), integer = TRUE, msg = "one-element positive"
+    )
 
     ## logical whether to handle NAs
     handle_na <- any(is.na(x))

@@ -94,7 +94,11 @@ find_peaks <- function(data, x, y, span = 30, between = NULL) {
     summary_data <- data.frame(
         samples = samples,
         lapply(peak_data, \(.col) {
-            if (is.numeric(.col)) mean(.col, na.rm = TRUE) else .col[1]
+            if (is.numeric(.col)) {
+                mean(.col, na.rm = TRUE)
+            } else {
+                .col[1]
+            }
         }),
         check.names = FALSE
     )
