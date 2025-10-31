@@ -23,51 +23,35 @@ validate_data_frame <- function(data) {
 
 #' @keywords internal
 validate_numeric <- function(
-        arg,
+        x,
         elements = Inf,
         range = NULL,
         inclusive = c("left", "right"),
         integer = FALSE,
         msg = ""
 ) {
-    name <- substitute(arg)
-    valid_arg <- !is.na(arg) & !is.nan(arg)
+    if (is.null(x)) {
+        return(invisible(NULL))
+    }
+    name <- substitute(x)
+    valid <- !is.na(x) & !is.nan(x)
 
-    if (elements == 1) {
-        arg_length <- "value"
+    ## check conditions
+    element_ok <- if (is.finite(elements)) {
+        sum(valid) == elements
     } else {
-        arg_length <- "vector"
+        sum(valid) > 0
     }
 
-    if (is.finite(elements)) {
-        elements_true <- sum(valid_arg) == elements
-    } else if (is.infinite(elements)) {
-        elements_true <- sum(valid_arg) > 0
-    }
+    range_ok <- is.null(range) ||
+        all(between(x[valid], range[1L], range[2L], inclusive))
 
-    range_true <- TRUE ## default condition
-    if (!is.null(range)) {
-        range_true <- all(
-            between(arg[valid_arg], range[1L], range[2L], inclusive)
-        )
-    }
-    if (!integer) {
-        integer_true <- TRUE
-        arg_class <- "numeric"
-    } else {
-        integer_true <- rlang::is_integerish(arg[valid_arg])
-        arg_class <- "integer"
-        arg_length <- ""
-    }
+    integer_ok <- !integer || rlang::is_integerish(x[valid])
 
-    if (
-        !is.null(arg) &&
-        (!is.numeric(arg) || !integer_true || !elements_true || !range_true)
-    ) {
-        cli::cli_abort( ## "one-element positive"; "two-element"
-            "{.arg {name}} must be a valid {msg} {.cls {arg_class}} \\
-            {arg_length}."
-        )
+    ## abort message if fails any
+    if (!is.numeric(x) || !element_ok || !range_ok || !integer_ok) {
+        type <- if (integer) {"integer"} else {"numeric"}
+        cli_abort("{.arg {name}} must be a valid {msg} {.cls {type}}.")
     }
 }
 
@@ -158,7 +142,7 @@ drop_rows_after_first_na <- function(data) {
 #'
 #' @keywords internal
 between <- function(x, left, right, inclusive = c("left", "right")) {
-    validate_numeric(x)
+    # validate_numeric(x)
     validate_numeric(left, 1L, msg = "one-element")
     validate_numeric(right, 1L, msg = "one-element")
     inclusive <- match.arg(

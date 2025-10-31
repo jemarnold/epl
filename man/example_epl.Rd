@@ -7,8 +7,8 @@
 example_epl(file = NULL)
 }
 \arguments{
-\item{file}{Name of file as character string. If kept as \code{NULL}, returns a
-vector of all available files.}
+\item{file}{Name of file as character string. If \code{NULL}, returns a vector
+of all available file names.}
 }
 \value{
 File paths for selected example files stored in this package.

@@ -10,7 +10,7 @@
 #'   (see *Details* for more on each method):
 #'   \describe{
 #'      \item{`"median"`}{Replaces outliers with the median within a locally
-#'      centred window defined by either `width` (the default).}
+#'      centred window defined by `width` (the default).}
 #'      \item{`"NA"`}{Replaces outliers with `NA`.}
 #'   }
 #' @param t0 An integer for the local outlier threshold. Default `t0 = 3`
@@ -63,8 +63,6 @@ replace_outliers <- function(
         t0 = 3
 ) {
     validate_numeric(x)
-    method <- match.arg(method)
-    method <- method == "median" ## into logical
     validate_numeric(
         width, 1, c(1, Inf), integer = TRUE, msg = "one-element positive"
     )
@@ -73,6 +71,8 @@ replace_outliers <- function(
             "{.arg width} must not be greater than half the length of {.arg x}."
         )
     }
+    method <- match.arg(method)
+    method <- method == "median" ## into logical
     validate_numeric(t0, 1, c(0, Inf), integer = TRUE, msg = "one-element positive")
 
     ## logical whether to handle NAs
@@ -132,9 +132,9 @@ replace_outliers <- function(
 #'
 #' @return
 #' `preserve_na()` returns a list `na_info` with components:
-#'  - `na_info$x_valid`: A vector with `NA` values removed.
-#'  - `na_info$x_length`: A numeric value of the original input vector length.
-#'  - `na_info$na_idx`: A logical vector preserving `NA` positions.
+#'   - `na_info$x_valid`: A vector with `NA` values removed.
+#'   - `na_info$x_length`: A numeric value of the original input vector length.
+#'   - `na_info$na_idx`: A logical vector preserving `NA` positions.
 #'
 #' `restore_na()` returns a vector `y` of the same length as the original
 #'   input vector `x` with `NA` values restored to their original positions.

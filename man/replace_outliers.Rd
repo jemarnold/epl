@@ -16,7 +16,7 @@ outliers. Where \verb{window = -width < idx < width}.}
 (see \emph{Details} for more on each method):
 \describe{
 \item{\code{"median"}}{Replaces outliers with the median within a locally
-centred window defined by either \code{width} (the default).}
+centred window defined by \code{width} (the default).}
 \item{\code{"NA"}}{Replaces outliers with \code{NA}.}
 }}
 

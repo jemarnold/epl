@@ -1,7 +1,7 @@
 #' Get path to EPL example files
 #'
-#' @param file Name of file as character string. If kept as `NULL`, returns a
-#'   vector of all available files.
+#' @param file Name of file as character string. If `NULL`, returns a vector
+#'   of all available file names.
 #'
 #' @return
 #' File paths for selected example files stored in this package.

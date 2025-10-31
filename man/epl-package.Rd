@@ -16,7 +16,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: Jem Arnold \email{jem.arnold@ubc.ca}
+\strong{Maintainer}: Jem Arnold \email{jem.arnold@ubc.ca} (\href{https://orcid.org/0000-0003-3908-9447}{ORCID})
 
 }
 \keyword{internal}
