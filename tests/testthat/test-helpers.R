@@ -8,6 +8,62 @@ test_that("validate_data_frame works", {
     expect_error(validate_data_frame(NULL), "`data` should be a data frame")
 })
 
+
+## validate_numeric() ==================================
+test_that("validate_numeric accepts valid numeric values", {
+    expect_silent(validate_numeric(5))
+    expect_silent(validate_numeric(c(1, 2, 3)))
+    expect_silent(validate_numeric(1.5))
+})
+
+test_that("validate_numeric checks element count", {
+    x <- c(1, 2)
+    expect_error(
+        validate_numeric(x, elements = 1),
+        "numeric"
+    )
+    expect_silent(validate_numeric(5, elements = 1))
+    expect_silent(validate_numeric(c(1, 2, 3), elements = 3))
+})
+
+test_that("validate_numeric checks range with inclusive bounds", {
+    expect_silent(validate_numeric(5, range = c(0, 10)))
+    expect_silent(validate_numeric(0, range = c(0, 10)))
+    expect_silent(validate_numeric(10, range = c(0, 10)))
+    expect_error(validate_numeric(-1, range = c(0, 10)), "numeric")
+    expect_error(validate_numeric(11, range = c(0, 10)), "numeric")
+})
+
+test_that("validate_numeric checks range with exclusive bounds", {
+    expect_silent(validate_numeric(5, range = c(0, 10), inclusive = FALSE))
+    expect_error(
+        validate_numeric(0, range = c(0, 10), inclusive = FALSE),
+        "numeric"
+    )
+    expect_error(
+        validate_numeric(10, range = c(0, 10), inclusive = FALSE),
+        "numeric"
+    )
+})
+
+test_that("validate_numeric rejects non-numeric input", {
+    expect_error(validate_numeric("text"), "numeric")
+    expect_error(validate_numeric(TRUE), "numeric")
+    expect_error(validate_numeric(list(1, 2))) ## "not implemented for type `list`"
+})
+
+test_that("validate_numeric handles NA, NaN, Inf", {
+    expect_error(validate_numeric(NA), "numeric")
+    expect_error(validate_numeric(NaN), "numeric")
+    expect_silent(validate_numeric(Inf))
+    expect_error(validate_numeric(Inf, range = c(0, 1)), "numeric")
+    expect_silent(validate_numeric(c(1, NA, 3), elements = 2))
+})
+
+test_that("validate_numeric handles NULL", {
+    expect_silent(validate_numeric(NULL))
+})
+
 ## drop_rows_after_first_na() =============================================
 test_that("drop_rows_after_first_na removes rows after first all-NA row", {
     df <- data.frame(x = c(1, 2, NA, 4), y = c(10, 20, NA, 40))
@@ -114,7 +170,7 @@ test_that("between() detects positive non-zero values", {
 })
 
 test_that("between() handles NA values", {
-    expect_error(between(NA, 1, 10), "`x`.*valid.*numeric")
+    expect_equal(between(NA, 1, 10), NA)
     expect_equal(between(c(1, NA, 5), 1, 10), c(TRUE, NA, TRUE))
     expect_error(between(5, NA, 10), "`left`.*valid.*numeric")
     expect_error(between(5, 1, NA), "`right`.*valid.*numeric")
@@ -138,4 +194,16 @@ test_that("between() handles degenerate ranges where left equals right", {
     expect_false(between(5, 5, 5, inclusive = FALSE))
     expect_false(between(5, 5, 5, inclusive = "left"))
     expect_false(between(5, 5, 5, inclusive = "right"))
+})
+
+test_that("between is equivalent to dplyr::between()", {
+    expect_equal(
+        between(c(0, 5, 10, 15), 1, 10),
+        dplyr::between(c(0, 5, 10, 15), 1, 10)
+    )
+
+    expect_equal(between(NA, 1, 10), dplyr::between(NA, 1, 10))
+    expect_equal(
+        between(c(1, NA, 5), 1, 10),
+        dplyr::between(c(1, NA, 5), 1, 10))
 })

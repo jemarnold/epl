@@ -126,7 +126,7 @@ theme_epl <- function(
 #'
 #' @export
 palette_epl <- function(n = NULL) {
-    colours_epl <- c(
+    colours <- c(
         `light blue`  = "#0080ff",      ## "VL"
         `dark red`    = "#ba2630",      ## "FCR"
         `light green` = "#5b8c52",      ## "BB" "#7dbf70"
@@ -141,16 +141,16 @@ palette_epl <- function(n = NULL) {
         `red`         = "#ED0000FF")    ## "O2Hb"
 
     if (is.null(n)) {
-        return(unname(colours_epl))
+        return(unname(colours))
     }
     if (is.character(n)) {
-        return(colours_epl[n])
+        return(colours[n])
     }
-    if (is.numeric(n) && n <= length(colours_epl)) {
-        return(unname(colours_epl[seq_len(n)]))
+    if (is.numeric(n) && n <= length(colours)) {
+        return(unname(colours[seq_len(n)]))
     } else if (is.numeric(n)) {
         ## interpolate if more colours needed, but this probably won't look good!
-        return(grDevices::colorRampPalette(colours_epl)(n))
+        return(grDevices::colorRampPalette(colours)(n))
     }
 }
 

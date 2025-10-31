@@ -3,7 +3,8 @@ Title: Functions and Scripts for the UBC Environmental Physiology
     Laboratory
 Version: 0.2.4
 Authors@R: 
-    person("Jem", "Arnold", , "jem.arnold@ubc.ca", role = c("aut", "cre"))
+    person("Jem", "Arnold", , "jem.arnold@ubc.ca", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-3908-9447"))
 Description: A repository of functions and scripts for common tasks for
     use by students in the UBC Environmental Physiology Laboratory.
 License: MIT + file LICENSE
