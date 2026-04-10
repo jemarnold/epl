@@ -35,25 +35,24 @@ read_tymewear <- function(file_path, ...) {
     validate_data_frame(data_raw)
 
     ## try detecting header row to determine file type
-    is_tymelive <- tryCatch(
-        detect_header_row(data_raw, "ts", 100, 20),
-        error = \(e) NULL
-    )
-
-    is_tymepost <- tryCatch(
-        detect_header_row(data_raw, "Time", 50, 5),
-        error = \(e) NULL
-    )
-
-    device_type <- if (is.numeric(is_tymelive)) {
+    device_type <- if (
+        !is.null(tryCatch(
+            detect_header_row(data_raw, "ts"),
+            error = \(e) NULL
+        ))
+    ) {
         "live"
-    } else if (is.numeric(is_tymepost)) {
+    } else if (
+        !is.null(tryCatch(
+            detect_header_row(data_raw, "Breath by breath time"),
+            error = \(e) NULL
+        ))
+    ) {
         "post"
     } else {
         cli::cli_abort(c(
             "{.arg file_path} = {.val {file_path}}",
-            "x" = "File does not appear to be a known {.val Tymewear} \\
-            export. Check file structure."
+            "x" = "File does not appear to be a known {.val Tymewear} export. Check file structure."
         ))
     }
 
@@ -167,9 +166,79 @@ read_tymewear.live <- function(file_path, ...) {
 #' @rdname read_tymewear
 #' @export
 read_tymewear.post <- function(file_path, ...) {
-    cli::cli_abort(c(
-        "{.arg file_path} = {.val {file_path}}",
-        "!" = 'Class = c({.val tymewear}, {.val post})',
-        "x" = "Read method currently under development for class: {.val post}"
+    ## read csv ================================
+    ## validation: check file exists
+    validate_file_path(file_path)
+
+    ## read csv avoiding formatting issues
+    data_raw <- read_csv_robust(file_path)
+
+    validate_data_frame(data_raw)
+
+    ## detect header row with "ts"
+    header_row <- detect_header_row(data_raw, "Breath by breath time")
+
+    ## details ===============================
+    ## extract file details/metadata at the top of the file
+    details <- data_raw |>
+        dplyr::slice(1:4) |>
+        ## rename columns
+        dplyr::select(parameter = 1, value = 2)
+    
+    start_time <- as.POSIXct(
+        paste(
+            details$value[details$parameter == "Date"],
+            details$value[details$parameter == "Start Time"]
+        ),
+        tryFormats = c(
+            "%Y-%m-%d %H:%M:%S",
+            "%Y-%d-%m %H:%M:%S"
+        ),
+        tz = "America/Vancouver"
+    )
+
+    end_time <- start_time +
+        lubridate::hms(details$value[details$parameter == "Duration"])
+
+    ## data table ====================================
+    tyme_data <- data_raw |>
+        janitor::row_to_names(header_row) |>
+        suppressWarnings() |>
+        ## rename and select columns
+        dplyr::select(
+            dplyr::any_of(
+                c(
+                    time = "Breath by breath time",
+                    br = "BR breath by breath",
+                    vt = "VT breath by breath",
+                    ve = "VE breath by breath"
+                )
+            )
+        ) |>
+        ## drops rows after/including the first row with all NA
+        drop_rows_after_first_na() |>
+        ## force type to numeric
+        dplyr::mutate(
+            dplyr::across(dplyr::everything(), \(.x) as.numeric(.x)),
+            ## correct inflated magnitude ventilatory values
+            dplyr::across("vt", \(.x) .x / 100),
+        ) |>
+        suppressWarnings() |>
+        ## drops empty rows
+        dplyr::filter(dplyr::if_any(dplyr::everything(), \(.x) !is.na(.x))) |>
+        dplyr::mutate(
+            ## create timestamp
+            timestamp = start_time + time,
+            ## round to avoid floating point
+            dplyr::across(dplyr::where(is.numeric), \(.x) round(.x, 8)),
+        ) |>
+        dplyr::relocate(time, timestamp)
+
+    ## return ================================
+    return(list(
+        data = tyme_data,
+        details = details
     ))
 }
+
+

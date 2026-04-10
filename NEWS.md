@@ -1,3 +1,7 @@
+# epl 0.3.0
+
+* Implement `read_tymewear.post()`
+
 # epl 0.2.4
 
 * Fix broken link to EPL Parvo Shiny App in the README.
