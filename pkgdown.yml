@@ -3,7 +3,7 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   reading-and-cleaning-data: reading-and-cleaning-data.html
-last_built: 2026-04-10T14:02Z
+last_built: 2026-04-10T14:04Z
 urls:
   reference: https://jemarnold.github.io/epl/reference
   article: https://jemarnold.github.io/epl/articles
